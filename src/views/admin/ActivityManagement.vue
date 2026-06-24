@@ -19,6 +19,7 @@ const activities = ref<Activity[]>([...mockActivities, ...(getCustomActivities()
 
 const showFormModal = ref(false)
 const isEditMode = ref(false)
+const activeTab = ref<'basic' | 'content' | 'rules' | 'rewards'>('basic')
 const formData = ref({
   id: '',
   name: '',
@@ -26,7 +27,10 @@ const formData = ref({
   activity_date: '',
   activity_type: '生存挑战',
   has_groups: false,
-  cover_image: ''
+  cover_image: '',
+  content: '',
+  rules: '',
+  rewards: ''
 })
 
 const showDeleteModal = ref(false)
@@ -56,6 +60,7 @@ const paginatedActivities = computed(() => {
 
 function openAddModal() {
   isEditMode.value = false
+  activeTab.value = 'basic'
   formData.value = {
     id: '',
     name: '',
@@ -63,7 +68,10 @@ function openAddModal() {
     activity_date: new Date().toISOString().split('T')[0],
     activity_type: '生存挑战',
     has_groups: false,
-    cover_image: ''
+    cover_image: '',
+    content: '',
+    rules: '',
+    rewards: ''
   }
   coverUploadError.value = ''
   showFormModal.value = true
@@ -71,6 +79,7 @@ function openAddModal() {
 
 function openEditModal(activity: Activity) {
   isEditMode.value = true
+  activeTab.value = 'basic'
   formData.value = {
     id: activity.id,
     name: activity.name,
@@ -78,7 +87,10 @@ function openEditModal(activity: Activity) {
     activity_date: activity.activity_date,
     activity_type: activity.activity_type || '生存挑战',
     has_groups: activity.has_groups,
-    cover_image: activity.cover_image || ''
+    cover_image: activity.cover_image || '',
+    content: activity.content || '',
+    rules: activity.rules || '',
+    rewards: activity.rewards || ''
   }
   coverUploadError.value = ''
   showFormModal.value = true
@@ -137,6 +149,9 @@ function saveActivity() {
         activity_type: formData.value.activity_type,
         has_groups: formData.value.has_groups,
         cover_image: formData.value.cover_image,
+        content: formData.value.content || null,
+        rules: formData.value.rules || null,
+        rewards: formData.value.rewards || null,
         updated_at: new Date().toISOString()
       }
       activities.value[idx] = updated
@@ -152,6 +167,9 @@ function saveActivity() {
       activity_type: formData.value.activity_type,
       has_groups: formData.value.has_groups,
       cover_image: formData.value.cover_image || null,
+      content: formData.value.content || null,
+      rules: formData.value.rules || null,
+      rewards: formData.value.rewards || null,
       created_by: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -349,8 +367,8 @@ function getTypeColor(type: string | null): string {
           class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
           @click.self="closeFormModal"
         >
-          <div class="w-full max-w-lg bg-[#1a2744] rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-white/10">
+          <div class="w-full max-w-2xl bg-[#1a2744] rounded-2xl border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 flex-shrink-0">
               <h3 class="text-lg font-bold text-white">
                 {{ isEditMode ? '编辑活动' : '新增活动' }}
               </h3>
@@ -361,83 +379,159 @@ function getTypeColor(type: string | null): string {
                 <X :size="20" />
               </button>
             </div>
-            <div class="p-6 space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-white/80 mb-2">活动名称</label>
-                <input
-                  v-model="formData.name"
-                  type="text"
-                  placeholder="请输入活动名称"
-                  class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-white/80 mb-2">活动描述</label>
-                <textarea
-                  v-model="formData.description"
-                  rows="3"
-                  placeholder="请输入活动描述"
-                  class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 resize-none"
-                ></textarea>
-              </div>
-              <div class="grid grid-cols-2 gap-4">
+            <div class="flex border-b border-white/10 px-6 flex-shrink-0">
+              <button
+                v-for="tab in [
+                  { key: 'basic', label: '基本信息' },
+                  { key: 'content', label: '活动详情' },
+                  { key: 'rules', label: '活动规则' },
+                  { key: 'rewards', label: '活动奖励' }
+                ]"
+                :key="tab.key"
+                @click="activeTab = tab.key as typeof activeTab"
+                class="px-4 py-3 text-sm font-medium transition-all duration-200 border-b-2 -mb-px"
+                :class="activeTab === tab.key
+                  ? 'text-green-400 border-green-500'
+                  : 'text-white/60 border-transparent hover:text-white/80'"
+              >
+                {{ tab.label }}
+              </button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto flex-1">
+              <!-- 基本信息 -->
+              <div v-show="activeTab === 'basic'" class="space-y-4">
                 <div>
-                  <label class="block text-sm font-medium text-white/80 mb-2">活动日期</label>
+                  <label class="block text-sm font-medium text-white/80 mb-2">活动名称</label>
                   <input
-                    v-model="formData.activity_date"
-                    type="date"
-                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200"
+                    v-model="formData.name"
+                    type="text"
+                    placeholder="请输入活动名称"
+                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200"
                   />
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-white/80 mb-2">活动类型</label>
-                  <select
-                    v-model="formData.activity_type"
-                    class="w-full px-4 py-3 bg-[#1a2744] border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
+                  <label class="block text-sm font-medium text-white/80 mb-2">活动描述</label>
+                  <textarea
+                    v-model="formData.description"
+                    rows="3"
+                    placeholder="简短描述活动内容"
+                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 resize-none"
+                  ></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-white/80 mb-2">活动日期</label>
+                    <input
+                      v-model="formData.activity_date"
+                      type="date"
+                      class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-white/80 mb-2">活动类型</label>
+                    <select
+                      v-model="formData.activity_type"
+                      class="w-full px-4 py-3 bg-[#1a2744] border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
+                    >
+                      <option value="生存挑战" class="bg-[#1a2744] text-white">生存挑战</option>
+                      <option value="PVP竞技" class="bg-[#1a2744] text-white">PVP竞技</option>
+                      <option value="建筑比赛" class="bg-[#1a2744] text-white">建筑比赛</option>
+                      <option value="其他活动" class="bg-[#1a2744] text-white">其他活动</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-white/80 mb-2">封面图片</label>
+                  <input
+                    ref="coverFileInputRef"
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    @change="handleCoverFileSelect"
+                  />
+                  <div
+                    @click="triggerCoverFileInput"
+                    class="aspect-video rounded-xl overflow-hidden bg-white/5 border-2 border-dashed border-white/20 cursor-pointer hover:border-green-500/50 transition-all duration-200 flex items-center justify-center"
                   >
-                    <option value="生存挑战" class="bg-[#1a2744] text-white">生存挑战</option>
-                    <option value="PVP竞技" class="bg-[#1a2744] text-white">PVP竞技</option>
-                    <option value="建筑比赛" class="bg-[#1a2744] text-white">建筑比赛</option>
-                    <option value="其他活动" class="bg-[#1a2744] text-white">其他活动</option>
-                  </select>
+                    <div v-if="formData.cover_image" class="w-full h-full">
+                      <img :src="formData.cover_image" alt="封面预览" class="w-full h-full object-cover" />
+                    </div>
+                    <div v-else class="text-center py-8">
+                      <Upload :size="40" class="mx-auto mb-3 text-white/30" />
+                      <p class="text-white/60 mb-1">点击上传封面图片</p>
+                      <p class="text-white/40 text-xs">支持 JPG、PNG、GIF 格式，最大 5MB</p>
+                    </div>
+                  </div>
+                  <p v-if="coverUploadError" class="text-red-400 text-sm mt-2">{{ coverUploadError }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <button
+                    @click="formData.has_groups = !formData.has_groups"
+                    class="relative w-12 h-6 rounded-full transition-colors duration-200"
+                    :class="formData.has_groups ? 'bg-green-500' : 'bg-white/20'"
+                  >
+                    <span
+                      class="absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200"
+                      :class="formData.has_groups ? 'left-7' : 'left-1'"
+                    ></span>
+                  </button>
+                  <span class="text-sm text-white/80">是否分组</span>
                 </div>
               </div>
-              <div>
-                <label class="block text-sm font-medium text-white/80 mb-2">封面图片</label>
-                <input
-                  ref="coverFileInputRef"
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  @change="handleCoverFileSelect"
-                />
-                <div
-                  @click="triggerCoverFileInput"
-                  class="aspect-video rounded-xl overflow-hidden bg-white/5 border-2 border-dashed border-white/20 cursor-pointer hover:border-green-500/50 transition-all duration-200 flex items-center justify-center"
-                >
-                  <div v-if="formData.cover_image" class="w-full h-full">
-                    <img :src="formData.cover_image" alt="封面预览" class="w-full h-full object-cover" />
-                  </div>
-                  <div v-else class="text-center py-8">
-                    <Upload :size="40" class="mx-auto mb-3 text-white/30" />
-                    <p class="text-white/60 mb-1">点击上传封面图片</p>
-                    <p class="text-white/40 text-xs">支持 JPG、PNG、GIF 格式，最大 5MB</p>
-                  </div>
+              <!-- 活动详情 -->
+              <div v-show="activeTab === 'content'" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-white/80 mb-2">
+                    活动详情内容
+                    <span class="text-white/40 font-normal ml-2">支持 Markdown 语法</span>
+                  </label>
+                  <textarea
+                    v-model="formData.content"
+                    rows="15"
+                    placeholder="详细介绍活动内容...
+支持 Markdown 语法：
+## 小标题
+- 列表项
+**粗体文字**
+*斜体文字*"
+                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 resize-none font-mono text-sm"
+                  ></textarea>
                 </div>
-                <p v-if="coverUploadError" class="text-red-400 text-sm mt-2">{{ coverUploadError }}</p>
               </div>
-              <div class="flex items-center gap-3">
-                <button
-                  @click="formData.has_groups = !formData.has_groups"
-                  class="relative w-12 h-6 rounded-full transition-colors duration-200"
-                  :class="formData.has_groups ? 'bg-green-500' : 'bg-white/20'"
-                >
-                  <span
-                    class="absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200"
-                    :class="formData.has_groups ? 'left-7' : 'left-1'"
-                  ></span>
-                </button>
-                <span class="text-sm text-white/80">是否分组</span>
+              <!-- 活动规则 -->
+              <div v-show="activeTab === 'rules'" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-white/80 mb-2">
+                    活动规则
+                    <span class="text-white/40 font-normal ml-2">支持 Markdown 语法</span>
+                  </label>
+                  <textarea
+                    v-model="formData.rules"
+                    rows="15"
+                    placeholder="1. 第一条规则
+2. 第二条规则
+3. 第三条规则..."
+                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 resize-none font-mono text-sm"
+                  ></textarea>
+                </div>
+              </div>
+              <!-- 活动奖励 -->
+              <div v-show="activeTab === 'rewards'" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-white/80 mb-2">
+                    活动奖励
+                    <span class="text-white/40 font-normal ml-2">支持 Markdown 语法</span>
+                  </label>
+                  <textarea
+                    v-model="formData.rewards"
+                    rows="15"
+                    placeholder="🏆 第一名：xxx 奖励
+🥈 第二名：xxx 奖励
+🥉 第三名：xxx 奖励
+🎁 参与奖：xxx 奖励"
+                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 resize-none font-mono text-sm"
+                  ></textarea>
+                </div>
               </div>
             </div>
             <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10">

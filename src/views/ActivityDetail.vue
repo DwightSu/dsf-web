@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Calendar, Users, ArrowLeft, Image as ImageIcon, ChevronLeft, ChevronRight, X, Clock } from 'lucide-vue-next'
+import { Calendar, Users, ArrowLeft, Image as ImageIcon, ChevronLeft, ChevronRight, X, Clock, BookOpen, ScrollText, Trophy } from 'lucide-vue-next'
 import { mockActivities, mockMembers, mockImages, mockGroupMembers, mockGroups } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Activity, Group, Member, GroupMember, Image as ImageType } from '@/types/database'
+import { getCustomActivities, getCustomImages } from '@/utils/storage'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,7 +21,12 @@ const activityId = computed(() => route.params.id as string)
 
 function loadActivity() {
   const id = activityId.value
-  const found = mockActivities.find(a => a.id === id)
+  
+  // 合并mock数据和本地存储的自定义活动
+  const allActivities = [...mockActivities, ...(getCustomActivities() as Activity[])]
+  const allImages = [...mockImages, ...(getCustomImages() as ImageType[])]
+  
+  const found = allActivities.find(a => a.id === id)
   if (!found) {
     activity.value = null
     isLoaded.value = true
@@ -39,7 +45,7 @@ function loadActivity() {
       })) as GroupMember[]
   }))
 
-  activityImages.value = mockImages.filter(img => img.activity_id === id)
+  activityImages.value = allImages.filter(img => img.activity_id === id)
   isLoaded.value = true
 }
 
@@ -94,6 +100,32 @@ function getActivityTypeColor(type: string | null): string {
     '生存挑战': 'from-green-500 to-emerald-500'
   }
   return typeColors[type || ''] || 'from-purple-500 to-pink-500'
+}
+
+function renderMarkdown(text: string | null | undefined): string {
+  if (!text) return ''
+
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/^### (.*$)/gm, '<h3 style="font-size: 1rem; font-weight: bold; color: white; margin: 1rem 0 0.5rem 0;">$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2 style="font-size: 1.25rem; font-weight: bold; color: white; margin: 1rem 0 0.5rem 0;">$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1 style="font-size: 1.5rem; font-weight: bold; color: white; margin: 1rem 0 0.5rem 0;">$1</h1>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: white; font-weight: bold;">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em style="color: rgba(255,255,255,0.8); font-style: italic;">$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="background: rgba(26,26,46,0.8); padding: 2px 6px; color: #4AEDD9; font-size: 0.875rem;">$1</code>')
+    .replace(/^> (.*$)/gm, '<blockquote style="border-left: 4px solid #4AEDD9; padding-left: 1rem; margin: 0.5rem 0; color: rgba(255,255,255,0.7); font-style: italic;">$1</blockquote>')
+    .replace(/^- (.*$)/gm, '<li style="margin-left: 1.5rem; color: rgba(255,255,255,0.8); list-style: disc;">$1</li>')
+    .replace(/^\d+\. (.*$)/gm, '<li style="margin-left: 1.5rem; color: rgba(255,255,255,0.8); list-style: decimal;">$1</li>')
+    .replace(/\n\n/g, '</p><p style="color: rgba(255,255,255,0.7); margin: 0.5rem 0;">')
+    .replace(/\n/g, '<br>')
+
+  if (!html.startsWith('<')) {
+    html = '<p style="color: rgba(255,255,255,0.7); margin: 0.5rem 0;">' + html + '</p>'
+  }
+
+  return html
 }
 
 onMounted(() => {
@@ -196,6 +228,39 @@ onMounted(() => {
           <p class="text-white/80 leading-relaxed text-base md:text-lg">
             {{ activity.description || '暂无活动介绍' }}
           </p>
+        </section>
+
+        <!-- 活动详情 -->
+        <section v-if="activity.content" class="mb-10 bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-6 md:p-8 border border-white/10 backdrop-blur-sm">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <BookOpen :size="20" class="text-white" />
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold text-white">活动详情</h2>
+          </div>
+          <div class="prose-content text-white/80 leading-relaxed text-base" v-html="renderMarkdown(activity.content)"></div>
+        </section>
+
+        <!-- 活动规则 -->
+        <section v-if="activity.rules" class="mb-10 bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-6 md:p-8 border border-white/10 backdrop-blur-sm">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
+              <ScrollText :size="20" class="text-white" />
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold text-white">活动规则</h2>
+          </div>
+          <div class="prose-content text-white/80 leading-relaxed text-base" v-html="renderMarkdown(activity.rules)"></div>
+        </section>
+
+        <!-- 活动奖励 -->
+        <section v-if="activity.rewards" class="mb-10 bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl p-6 md:p-8 border border-white/10 backdrop-blur-sm">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center shadow-lg shadow-yellow-500/25">
+              <Trophy :size="20" class="text-white" />
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold text-white">活动奖励</h2>
+          </div>
+          <div class="prose-content text-white/80 leading-relaxed text-base" v-html="renderMarkdown(activity.rewards)"></div>
         </section>
 
         <section class="mb-10">

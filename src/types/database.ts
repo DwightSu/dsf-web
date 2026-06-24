@@ -23,6 +23,9 @@ export interface Activity {
   created_by: string | null
   created_at: string
   updated_at: string
+  content?: string | null
+  rules?: string | null
+  rewards?: string | null
   groups?: Group[]
   images?: Image[]
 }
