@@ -217,9 +217,9 @@ function getActivityTypeColor(type: string) {
                 <div class="min-w-0">
                   <h3 class="font-semibold text-white text-sm truncate">{{ activity.name }}</h3>
                   <div class="flex items-center gap-2 mt-1">
-                    <span :class="['px-2 py-0.5 rounded-full text-xs border', getActivityTypeColor(activity.type)]">
-                      {{ activity.type }}
-                    </span>
+                    <span :class="['px-2 py-0.5 rounded-full text-xs border', getActivityTypeColor(activity.activity_type)]">
+                    {{ activity.activity_type }}
+                  </span>
                     <span class="text-xs text-white/40">{{ formatDate(activity.activity_date) }}</span>
                   </div>
                 </div>

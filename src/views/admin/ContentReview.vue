@@ -114,16 +114,16 @@ const pendingCount = computed(() => {
   return comments.value.filter(c => c.review_status === 'pending').length
 })
 
-function viewDetail(item: PostWithReview | CommentWithReview, type: 'post' | 'comment') {
+function viewDetail(item: PostWithReview | CommentWithReview, type: TabType) {
   selectedItem.value = item
-  detailType.value = type
+  detailType.value = type === 'posts' ? 'post' : 'comment'
   showDetailModal.value = true
 }
 
-function openConfirm(action: 'approve' | 'reject', item: PostWithReview | CommentWithReview, type: 'post' | 'comment') {
+function openConfirm(action: 'approve' | 'reject', item: PostWithReview | CommentWithReview, type: TabType) {
   confirmAction.value = action
   confirmItem.value = item
-  confirmType.value = type
+  confirmType.value = type === 'posts' ? 'post' : 'comment'
   showConfirmModal.value = true
 }
 

@@ -72,8 +72,7 @@ function uploadImage() {
     url: uploadForm.value.url,
     description: uploadForm.value.description,
     uploaded_by: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    created_at: new Date().toISOString()
   }
   images.value.unshift(newImage)
   showUploadModal.value = false
