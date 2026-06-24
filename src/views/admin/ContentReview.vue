@@ -120,10 +120,10 @@ function viewDetail(item: PostWithReview | CommentWithReview, type: TabType) {
   showDetailModal.value = true
 }
 
-function openConfirm(action: 'approve' | 'reject', item: PostWithReview | CommentWithReview, type: TabType) {
+function openConfirm(action: 'approve' | 'reject', item: PostWithReview | CommentWithReview, type: 'post' | 'comment' | TabType) {
   confirmAction.value = action
   confirmItem.value = item
-  confirmType.value = type === 'posts' ? 'post' : 'comment'
+  confirmType.value = type === 'posts' ? 'post' : type === 'comments' ? 'comment' : type
   showConfirmModal.value = true
 }
 

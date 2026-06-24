@@ -1,6 +1,6 @@
 // 活动相关类型定义
 
-import type { Activity, Group, Image, Comment } from './database'
+import type { Activity, Group, Image, Comment, GroupMember } from './database'
 
 export interface ActivityWithDetails extends Activity {
   groups: GroupWithMembers[]
@@ -8,15 +8,11 @@ export interface ActivityWithDetails extends Activity {
   comments?: Comment[]
 }
 
-export interface GroupWithMembers extends Group {
+export interface GroupWithMembers extends Omit<Group, 'group_members'> {
   group_members: GroupMemberWithMember[]
 }
 
-export interface GroupMemberWithMember {
-  id: string
-  group_id: string
-  member_id: string
-  joined_at: string
+export interface GroupMemberWithMember extends GroupMember {
   members: {
     id: string
     nickname: string
