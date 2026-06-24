@@ -14,6 +14,7 @@ import {
   Newspaper,
   User
 } from 'lucide-vue-next'
+import PixelButton from '@/components/common/PixelButton.vue'
 import { mockPosts, mockComments, mockPostAuthors } from '@/mock'
 import { formatDate } from '@/utils/format'
 import { useAuthStore } from '@/stores/auth'
@@ -217,10 +218,10 @@ onMounted(() => {
 
             <div v-if="authStore.isLoggedIn" class="flex-shrink-0">
               <RouterLink to="/forum/create">
-                <button class="h-full px-6 py-3 bg-gradient-to-r from-emerald-500 to-lime-400 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-2">
-                  <Plus :size="20" />
-                  <span>发布帖子</span>
-                </button>
+                <PixelButton variant="primary" size="md">
+                  <Plus :size="18" />
+                  发布帖子
+                </PixelButton>
               </RouterLink>
             </div>
           </div>

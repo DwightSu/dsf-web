@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Eye, Calendar, MessageSquare, ArrowLeft, Users } from 'lucide-vue-next'
+import { Eye, Calendar, MessageSquare, ArrowLeft, Users, Edit, Save, X } from 'lucide-vue-next'
 import PixelCard from '@/components/common/PixelCard.vue'
 import PixelButton from '@/components/common/PixelButton.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { getMockPostDetail } from '@/mock'
 import { formatDate } from '@/utils/format'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+
+const isEditing = ref(false)
+const editTitle = ref('')
+const editContent = ref('')
+const editTags = ref('')
 
 const route = useRoute()
 const router = useRouter()
@@ -52,6 +60,30 @@ function renderMarkdown(text: string): string {
   return html
 }
 
+function startEdit() {
+  if (!postDetail.value) return
+  editTitle.value = postDetail.value.title
+  editContent.value = postDetail.value.content
+  editTags.value = (postDetail.value.tags || []).join(', ')
+  isEditing.value = true
+}
+
+function cancelEdit() {
+  isEditing.value = false
+}
+
+function saveEdit() {
+  if (!postDetail.value) return
+  const tagsArray = editTags.value
+    .split(',')
+    .map(t => t.trim())
+    .filter(t => t.length > 0)
+  postDetail.value.title = editTitle.value
+  postDetail.value.content = editContent.value
+  postDetail.value.tags = tagsArray
+  isEditing.value = false
+}
+
 onMounted(() => {
   loadPost()
 })
@@ -82,9 +114,26 @@ onMounted(() => {
       <div v-else>
         <!-- 帖子标题区 -->
         <div class="post-header mb-8">
-          <h1 class="text-2xl md:text-3xl font-pixel text-white mb-4">
-            {{ postDetail.title }}
-          </h1>
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <h1 v-if="!isEditing" class="text-2xl md:text-3xl font-pixel text-white">
+              {{ postDetail.title }}
+            </h1>
+            <input
+              v-else
+              v-model="editTitle"
+              type="text"
+              class="flex-1 text-2xl md:text-3xl font-pixel text-white bg-white/5 border-2 border-white/20 rounded-xl px-4 py-2 focus:outline-none focus:border-grass-green"
+              placeholder="请输入帖子标题"
+            />
+            <button
+              v-if="authStore.isAdmin && !isEditing"
+              @click="startEdit"
+              class="flex items-center gap-2 px-4 py-2 bg-amber-500/20 text-amber-300 rounded-xl hover:bg-amber-500/30 transition-all duration-200 flex-shrink-0"
+            >
+              <Edit :size="18" />
+              编辑
+            </button>
+          </div>
 
           <div class="flex flex-wrap items-center gap-4 text-sm text-white/60 mb-4">
             <!-- 作者 -->
@@ -121,10 +170,40 @@ onMounted(() => {
         <!-- 帖子内容 -->
         <div class="post-content mb-8">
           <PixelCard padding="lg">
-            <div
+            <div v-if="!isEditing"
               class="prose-content text-sm leading-relaxed"
               v-html="renderMarkdown(postDetail.content || '')"
             ></div>
+            <div v-else class="space-y-4">
+              <div>
+                <label class="block text-sm font-pixel text-white mb-2">内容</label>
+                <textarea
+                  v-model="editContent"
+                  rows="15"
+                  class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green resize-none font-mono text-sm"
+                  placeholder="支持 Markdown 语法..."
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-pixel text-white mb-2">标签（用逗号分隔）</label>
+                <input
+                  v-model="editTags"
+                  type="text"
+                  class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green"
+                  placeholder="例如: 建筑, 生存, PVP"
+                />
+              </div>
+              <div class="flex justify-end gap-3">
+                <PixelButton variant="ghost" size="sm" @click="cancelEdit">
+                  <X :size="16" />
+                  取消
+                </PixelButton>
+                <PixelButton variant="primary" size="sm" @click="saveEdit">
+                  <Save :size="16" />
+                  保存
+                </PixelButton>
+              </div>
+            </div>
           </PixelCard>
         </div>
 

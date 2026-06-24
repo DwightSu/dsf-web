@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Calendar, Plus, Edit, Trash2, Search, ChevronLeft, ChevronRight, X, CalendarDays, Eye } from 'lucide-vue-next'
+import { Calendar, Plus, Edit, Trash2, Search, ChevronLeft, ChevronRight, X, CalendarDays, Eye, Upload } from 'lucide-vue-next'
+import PixelButton from '@/components/common/PixelButton.vue'
 import { mockActivities } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Activity } from '@/types/database'
@@ -28,6 +29,9 @@ const formData = ref({
 
 const showDeleteModal = ref(false)
 const deleteTarget = ref<Activity | null>(null)
+const coverUploadError = ref('')
+const isUploadingCover = ref(false)
+const coverFileInputRef = ref<HTMLInputElement | null>(null)
 
 const filteredActivities = computed(() => {
   let result = [...activities.value]
@@ -59,6 +63,7 @@ function openAddModal() {
     has_groups: false,
     cover_image: ''
   }
+  coverUploadError.value = ''
   showFormModal.value = true
 }
 
@@ -73,11 +78,47 @@ function openEditModal(activity: Activity) {
     has_groups: activity.has_groups,
     cover_image: activity.cover_image || ''
   }
+  coverUploadError.value = ''
   showFormModal.value = true
 }
 
 function closeFormModal() {
   showFormModal.value = false
+  coverUploadError.value = ''
+}
+
+function triggerCoverFileInput() {
+  coverFileInputRef.value?.click()
+}
+
+function handleCoverFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    coverUploadError.value = '请选择图片文件'
+    return
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    coverUploadError.value = '图片大小不能超过5MB'
+    return
+  }
+
+  coverUploadError.value = ''
+  isUploadingCover.value = true
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    formData.value.cover_image = e.target?.result as string
+    isUploadingCover.value = false
+  }
+  reader.onerror = () => {
+    coverUploadError.value = '图片读取失败'
+    isUploadingCover.value = false
+  }
+  reader.readAsDataURL(file)
 }
 
 function saveActivity() {
@@ -164,13 +205,10 @@ function getTypeColor(type: string | null): string {
             class="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200"
           />
         </div>
-        <button
-          @click="openAddModal"
-          class="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-green-500/25 transition-all duration-300 hover:scale-105 active:scale-95"
-        >
-          <Plus :size="20" />
+        <PixelButton variant="primary" size="md" @click="openAddModal">
+          <Plus :size="18" />
           新增活动
-        </button>
+        </PixelButton>
       </div>
 
       <div class="bg-white/[0.03] rounded-2xl border border-white/10 overflow-hidden">
@@ -353,6 +391,30 @@ function getTypeColor(type: string | null): string {
                   </select>
                 </div>
               </div>
+              <div>
+                <label class="block text-sm font-medium text-white/80 mb-2">封面图片</label>
+                <input
+                  ref="coverFileInputRef"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  @change="handleCoverFileSelect"
+                />
+                <div
+                  @click="triggerCoverFileInput"
+                  class="aspect-video rounded-xl overflow-hidden bg-white/5 border-2 border-dashed border-white/20 cursor-pointer hover:border-green-500/50 transition-all duration-200 flex items-center justify-center"
+                >
+                  <div v-if="formData.cover_image" class="w-full h-full">
+                    <img :src="formData.cover_image" alt="封面预览" class="w-full h-full object-cover" />
+                  </div>
+                  <div v-else class="text-center py-8">
+                    <Upload :size="40" class="mx-auto mb-3 text-white/30" />
+                    <p class="text-white/60 mb-1">点击上传封面图片</p>
+                    <p class="text-white/40 text-xs">支持 JPG、PNG、GIF 格式，最大 5MB</p>
+                  </div>
+                </div>
+                <p v-if="coverUploadError" class="text-red-400 text-sm mt-2">{{ coverUploadError }}</p>
+              </div>
               <div class="flex items-center gap-3">
                 <button
                   @click="formData.has_groups = !formData.has_groups"
@@ -368,18 +430,12 @@ function getTypeColor(type: string | null): string {
               </div>
             </div>
             <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10">
-              <button
-                @click="closeFormModal"
-                class="px-5 py-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200"
-              >
+              <PixelButton variant="ghost" size="md" @click="closeFormModal">
                 取消
-              </button>
-              <button
-                @click="saveActivity"
-                class="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-green-500/25 transition-all duration-300 hover:scale-105 active:scale-95"
-              >
+              </PixelButton>
+              <PixelButton variant="primary" size="md" :loading="isUploadingCover" @click="saveActivity">
                 {{ isEditMode ? '保存修改' : '创建活动' }}
-              </button>
+              </PixelButton>
             </div>
           </div>
         </div>

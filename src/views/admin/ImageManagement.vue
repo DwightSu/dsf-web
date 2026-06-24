@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Image as ImageIcon, Plus, Search, Trash2, Eye, ChevronLeft, ChevronRight, X, Upload, FolderOpen } from 'lucide-vue-next'
+import PixelButton from '@/components/common/PixelButton.vue'
 import { mockImages, mockActivities } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Image as ImageType } from '@/types/database'
@@ -18,12 +19,16 @@ const uploadForm = ref({
   description: '',
   url: ''
 })
+const uploadError = ref('')
+const isUploading = ref(false)
 
 const showPreviewModal = ref(false)
 const previewImage = ref<ImageType | null>(null)
 
 const showDeleteModal = ref(false)
 const deleteTarget = ref<ImageType | null>(null)
+
+const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const filteredImages = computed(() => {
   let result = [...images.value]
@@ -56,16 +61,61 @@ function openUploadModal() {
   uploadForm.value = {
     activity_id: mockActivities[0]?.id || '',
     description: '',
-    url: 'https://picsum.photos/600/400?random=' + Date.now()
+    url: ''
   }
+  uploadError.value = ''
   showUploadModal.value = true
 }
 
 function closeUploadModal() {
   showUploadModal.value = false
+  uploadError.value = ''
+}
+
+function triggerFileInput() {
+  fileInputRef.value?.click()
+}
+
+function handleFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    uploadError.value = '请选择图片文件'
+    return
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    uploadError.value = '图片大小不能超过5MB'
+    return
+  }
+
+  uploadError.value = ''
+  isUploading.value = true
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    uploadForm.value.url = e.target?.result as string
+    isUploading.value = false
+  }
+  reader.onerror = () => {
+    uploadError.value = '图片读取失败'
+    isUploading.value = false
+  }
+  reader.readAsDataURL(file)
 }
 
 function uploadImage() {
+  if (!uploadForm.value.url) {
+    uploadError.value = '请选择一张图片'
+    return
+  }
+  if (!uploadForm.value.activity_id) {
+    uploadError.value = '请选择所属活动'
+    return
+  }
+
   const newImage: ImageType = {
     id: 'img' + Date.now(),
     activity_id: uploadForm.value.activity_id,
@@ -138,13 +188,10 @@ function confirmDelete() {
               </option>
             </select>
           </div>
-          <button
-            @click="openUploadModal"
-            class="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/25 transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            <Upload :size="20" />
+          <PixelButton variant="success" size="md" @click="openUploadModal">
+            <Upload :size="18" />
             上传图片
-          </button>
+          </PixelButton>
         </div>
       </div>
 
@@ -243,10 +290,28 @@ function confirmDelete() {
             </div>
             <div class="p-6 space-y-4">
               <div>
-                <label class="block text-sm font-medium text-white/80 mb-2">图片预览</label>
-                <div class="aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10">
-                  <img :src="uploadForm.url" alt="预览" class="w-full h-full object-cover" />
+                <label class="block text-sm font-medium text-white/80 mb-2">选择图片</label>
+                <input
+                  ref="fileInputRef"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  @change="handleFileSelect"
+                />
+                <div
+                  @click="triggerFileInput"
+                  class="aspect-video rounded-xl overflow-hidden bg-white/5 border-2 border-dashed border-white/20 cursor-pointer hover:border-amber-500/50 transition-all duration-200 flex items-center justify-center"
+                >
+                  <div v-if="uploadForm.url" class="w-full h-full">
+                    <img :src="uploadForm.url" alt="预览" class="w-full h-full object-cover" />
+                  </div>
+                  <div v-else class="text-center py-8">
+                    <Upload :size="40" class="mx-auto mb-3 text-white/30" />
+                    <p class="text-white/60 mb-1">点击选择本地图片</p>
+                    <p class="text-white/40 text-xs">支持 JPG、PNG、GIF 格式，最大 5MB</p>
+                  </div>
                 </div>
+                <p v-if="uploadError" class="text-red-400 text-sm mt-2">{{ uploadError }}</p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-white/80 mb-2">所属活动</label>
@@ -270,18 +335,13 @@ function confirmDelete() {
               </div>
             </div>
             <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10">
-              <button
-                @click="closeUploadModal"
-                class="px-5 py-2.5 text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-200"
-              >
+              <PixelButton variant="ghost" size="md" @click="closeUploadModal">
                 取消
-              </button>
-              <button
-                @click="uploadImage"
-                class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/25 transition-all duration-300 hover:scale-105 active:scale-95"
-              >
+              </PixelButton>
+              <PixelButton variant="success" size="md" :loading="isUploading" @click="uploadImage">
+                <Upload :size="16" />
                 上传
-              </button>
+              </PixelButton>
             </div>
           </div>
         </div>

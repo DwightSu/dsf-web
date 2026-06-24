@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { MessageSquare, Search, Check, X, Eye, ChevronLeft, ChevronRight, AlertCircle, FileText, MessageCircle, Clock } from 'lucide-vue-next'
+import { MessageSquare, Search, Check, X, Eye, ChevronLeft, ChevronRight, AlertCircle, FileText, MessageCircle, Clock, Edit, Save } from 'lucide-vue-next'
+import PixelButton from '@/components/common/PixelButton.vue'
+import { useAuthStore } from '@/stores/auth'
 import { mockPosts, mockComments, mockPostAuthors, mockCommentAuthors } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Post, Comment } from '@/types/database'
+
+const authStore = useAuthStore()
 
 type ReviewStatus = 'pending' | 'approved' | 'rejected'
 type TabType = 'posts' | 'comments'
@@ -38,6 +42,15 @@ const showConfirmModal = ref(false)
 const confirmAction = ref<'approve' | 'reject'>('approve')
 const confirmItem = ref<PostWithReview | CommentWithReview | null>(null)
 const confirmType = ref<'post' | 'comment'>('post')
+
+const showEditModal = ref(false)
+const editType = ref<'post' | 'comment'>('post')
+const editItem = ref<PostWithReview | CommentWithReview | null>(null)
+const editForm = ref({
+  title: '',
+  content: '',
+  tags: ''
+})
 
 function initData() {
   posts.value = mockPosts.map((post, index) => ({
@@ -171,6 +184,63 @@ function getAvatar(url: string | null, name: string): string {
   return `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(name)}&backgroundColor=${colors[colorIndex]}`
 }
 
+function openEditModal(item: PostWithReview | CommentWithReview, type: TabType) {
+  editItem.value = item
+  editType.value = type === 'posts' ? 'post' : 'comment'
+  if (type === 'posts') {
+    const post = item as PostWithReview
+    editForm.value = {
+      title: post.title,
+      content: post.content,
+      tags: (post.tags || []).join(', ')
+    }
+  } else {
+    const comment = item as CommentWithReview
+    editForm.value = {
+      title: '',
+      content: comment.content,
+      tags: ''
+    }
+  }
+  showEditModal.value = true
+}
+
+function closeEditModal() {
+  showEditModal.value = false
+  editItem.value = null
+}
+
+function saveEdit() {
+  if (!editItem.value) return
+
+  if (editType.value === 'post') {
+    const idx = posts.value.findIndex(p => p.id === editItem.value?.id)
+    if (idx !== -1) {
+      const tagsArray = editForm.value.tags
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0)
+      posts.value[idx] = {
+        ...posts.value[idx],
+        title: editForm.value.title,
+        content: editForm.value.content,
+        tags: tagsArray
+      }
+    }
+  } else {
+    const idx = comments.value.findIndex(c => c.id === editItem.value?.id)
+    if (idx !== -1) {
+      comments.value[idx] = {
+        ...comments.value[idx],
+        content: editForm.value.content
+      }
+    }
+  }
+
+  showEditModal.value = false
+  editItem.value = null
+}
+
 function switchTab(tab: TabType) {
   activeTab.value = tab
   currentPage.value = 1
@@ -291,6 +361,14 @@ function switchTab(tab: TabType) {
                 >
                   <Eye :size="16" />
                   查看
+                </button>
+                <button
+                  v-if="authStore.isAdmin"
+                  @click="openEditModal(item, activeTab)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 rounded-lg transition-all duration-200"
+                >
+                  <Edit :size="16" />
+                  编辑
                 </button>
                 <template v-if="item.review_status === 'pending'">
                   <button
@@ -426,6 +504,68 @@ function switchTab(tab: TabType) {
                   拒绝
                 </button>
               </template>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="showEditModal && editItem"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          @click.self="closeEditModal"
+        >
+          <div class="w-full max-w-2xl bg-[#1a2744] rounded-2xl border border-white/10 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 flex-shrink-0">
+              <h3 class="text-lg font-bold text-white">
+                编辑{{ editType === 'post' ? '帖子' : '评论' }}
+              </h3>
+              <button
+                @click="closeEditModal"
+                class="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
+              >
+                <X :size="20" />
+              </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 space-y-4">
+              <div v-if="editType === 'post'">
+                <label class="block text-sm font-medium text-white/80 mb-2">标题</label>
+                <input
+                  v-model="editForm.title"
+                  type="text"
+                  placeholder="请输入帖子标题"
+                  class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-rose-500/50 focus:ring-2 focus:ring-rose-500/20 transition-all duration-200"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-white/80 mb-2">内容</label>
+                <textarea
+                  v-model="editForm.content"
+                  rows="8"
+                  placeholder="请输入内容"
+                  class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-rose-500/50 focus:ring-2 focus:ring-rose-500/20 transition-all duration-200 resize-none"
+                ></textarea>
+              </div>
+              <div v-if="editType === 'post'">
+                <label class="block text-sm font-medium text-white/80 mb-2">标签（用逗号分隔）</label>
+                <input
+                  v-model="editForm.tags"
+                  type="text"
+                  placeholder="例如: 建筑, 生存, PVP"
+                  class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-rose-500/50 focus:ring-2 focus:ring-rose-500/20 transition-all duration-200"
+                />
+              </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/10 flex-shrink-0">
+              <PixelButton variant="ghost" size="md" @click="closeEditModal">
+                取消
+              </PixelButton>
+              <PixelButton variant="primary" size="md" @click="saveEdit">
+                <Save :size="16" />
+                保存
+              </PixelButton>
             </div>
           </div>
         </div>
