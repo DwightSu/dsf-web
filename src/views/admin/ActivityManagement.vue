@@ -6,6 +6,7 @@ import PixelButton from '@/components/common/PixelButton.vue'
 import { mockActivities } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Activity } from '@/types/database'
+import { getCustomActivities, saveCustomActivity, updateCustomActivity, deleteCustomActivity } from '@/utils/storage'
 
 const router = useRouter()
 
@@ -13,7 +14,8 @@ const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = 8
 
-const activities = ref<Activity[]>([...mockActivities])
+// 合并mock数据和本地存储的自定义活动
+const activities = ref<Activity[]>([...mockActivities, ...(getCustomActivities() as Activity[])])
 
 const showFormModal = ref(false)
 const isEditMode = ref(false)
@@ -123,19 +125,23 @@ function handleCoverFileSelect(event: Event) {
 
 function saveActivity() {
   if (!formData.value.name.trim()) return
-  
+
   if (isEditMode.value) {
     const idx = activities.value.findIndex(a => a.id === formData.value.id)
     if (idx !== -1) {
-      activities.value[idx] = {
+      const updated = {
         ...activities.value[idx],
         name: formData.value.name,
         description: formData.value.description,
         activity_date: formData.value.activity_date,
         activity_type: formData.value.activity_type,
         has_groups: formData.value.has_groups,
-        cover_image: formData.value.cover_image
+        cover_image: formData.value.cover_image,
+        updated_at: new Date().toISOString()
       }
+      activities.value[idx] = updated
+      // 保存到本地存储
+      updateCustomActivity(formData.value.id, updated)
     }
   } else {
     const newActivity: Activity = {
@@ -151,6 +157,8 @@ function saveActivity() {
       updated_at: new Date().toISOString()
     }
     activities.value.unshift(newActivity)
+    // 保存到本地存储
+    saveCustomActivity(newActivity)
   }
   showFormModal.value = false
 }
@@ -162,7 +170,10 @@ function openDeleteModal(activity: Activity) {
 
 function confirmDelete() {
   if (deleteTarget.value) {
-    activities.value = activities.value.filter(a => a.id !== deleteTarget.value?.id)
+    const id = deleteTarget.value.id
+    activities.value = activities.value.filter(a => a.id !== id)
+    // 从本地存储删除
+    deleteCustomActivity(id)
   }
   showDeleteModal.value = false
   deleteTarget.value = null

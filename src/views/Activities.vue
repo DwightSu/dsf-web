@@ -5,6 +5,7 @@ import { Calendar, Search, Users, Filter, X, ChevronLeft, ChevronRight, Sparkles
 import { mockActivities, mockGroups, mockGroupMembers } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Activity } from '@/types/database'
+import { getCustomActivities } from '@/utils/storage'
 
 const loading = ref(false)
 const searchQuery = ref('')
@@ -13,13 +14,18 @@ const sortOrder = ref<'desc' | 'asc'>('desc')
 const currentPage = ref(1)
 const itemsPerPage = 6
 
+// 合并mock数据和本地存储的自定义活动
+const allActivities = computed(() => {
+  return [...mockActivities, ...(getCustomActivities() as Activity[])]
+})
+
 const activityTypes = computed(() => {
-  const types = [...new Set(mockActivities.map(a => a.activity_type).filter(Boolean))]
+  const types = [...new Set(allActivities.value.map(a => a.activity_type).filter(Boolean))]
   return types as string[]
 })
 
 const filteredActivities = computed(() => {
-  let result = [...mockActivities]
+  let result = [...allActivities.value]
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()

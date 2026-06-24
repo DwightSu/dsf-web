@@ -5,13 +5,15 @@ import PixelButton from '@/components/common/PixelButton.vue'
 import { mockImages, mockActivities } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Image as ImageType } from '@/types/database'
+import { getCustomImages, saveCustomImage, deleteCustomImage } from '@/utils/storage'
 
 const searchQuery = ref('')
 const activityFilter = ref('all')
 const currentPage = ref(1)
 const pageSize = 12
 
-const images = ref<ImageType[]>([...mockImages])
+// 合并mock数据和本地存储的自定义图片
+const images = ref<ImageType[]>([...mockImages, ...(getCustomImages() as ImageType[])])
 
 const showUploadModal = ref(false)
 const uploadForm = ref({
@@ -125,6 +127,8 @@ function uploadImage() {
     created_at: new Date().toISOString()
   }
   images.value.unshift(newImage)
+  // 保存到本地存储
+  saveCustomImage(newImage)
   showUploadModal.value = false
 }
 
@@ -145,7 +149,10 @@ function openDeleteModal(img: ImageType) {
 
 function confirmDelete() {
   if (deleteTarget.value) {
-    images.value = images.value.filter(i => i.id !== deleteTarget.value?.id)
+    const id = deleteTarget.value.id
+    images.value = images.value.filter(i => i.id !== id)
+    // 从本地存储删除
+    deleteCustomImage(id)
   }
   showDeleteModal.value = false
   deleteTarget.value = null
@@ -180,10 +187,10 @@ function confirmDelete() {
             <FolderOpen :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
             <select
               v-model="activityFilter"
-              class="pl-11 pr-8 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 appearance-none cursor-pointer min-w-[160px]"
+              class="pl-11 pr-8 py-3 bg-[#1a2744] border border-white/10 rounded-xl text-white focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 appearance-none cursor-pointer min-w-[160px] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
             >
-              <option value="all">全部活动</option>
-              <option v-for="act in mockActivities" :key="act.id" :value="act.id">
+              <option value="all" class="bg-[#1a2744] text-white">全部活动</option>
+              <option v-for="act in mockActivities" :key="act.id" :value="act.id" class="bg-[#1a2744] text-white">
                 {{ act.name }}
               </option>
             </select>
@@ -317,9 +324,9 @@ function confirmDelete() {
                 <label class="block text-sm font-medium text-white/80 mb-2">所属活动</label>
                 <select
                   v-model="uploadForm.activity_id"
-                  class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200"
+                  class="w-full px-4 py-3 bg-[#1a2744] border border-white/10 rounded-xl text-white focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
                 >
-                  <option v-for="act in mockActivities" :key="act.id" :value="act.id">
+                  <option v-for="act in mockActivities" :key="act.id" :value="act.id" class="bg-[#1a2744] text-white">
                     {{ act.name }}
                   </option>
                 </select>

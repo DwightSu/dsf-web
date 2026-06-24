@@ -10,7 +10,9 @@ export const STORAGE_KEYS = {
   LANGUAGE: STORAGE_PREFIX + 'language',
   LAST_VISIT: STORAGE_PREFIX + 'last_visit',
   CACHE_ACTIVITIES: STORAGE_PREFIX + 'cache_activities',
-  CACHE_MEMBERS: STORAGE_PREFIX + 'cache_members'
+  CACHE_MEMBERS: STORAGE_PREFIX + 'cache_members',
+  CUSTOM_ACTIVITIES: STORAGE_PREFIX + 'custom_activities',
+  CUSTOM_IMAGES: STORAGE_PREFIX + 'custom_images'
 }
 
 // 获取存储项
@@ -112,4 +114,51 @@ export function getCachedActivities(): unknown[] | null {
   }
 
   return cached.data
+}
+
+// 自定义活动相关函数
+export function getCustomActivities(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS.CUSTOM_ACTIVITIES) || []
+}
+
+export function saveCustomActivity(activity: unknown): void {
+  const activities = getCustomActivities()
+  activities.unshift(activity)
+  setStorage(STORAGE_KEYS.CUSTOM_ACTIVITIES, activities)
+}
+
+export function updateCustomActivity(id: string, updates: unknown): boolean {
+  const activities = getCustomActivities() as Array<{ id: string }>
+  const index = activities.findIndex(a => a.id === id)
+  if (index !== -1) {
+    activities[index] = { ...activities[index], ...(updates as object) }
+    setStorage(STORAGE_KEYS.CUSTOM_ACTIVITIES, activities)
+    return true
+  }
+  return false
+}
+
+export function deleteCustomActivity(id: string): boolean {
+  const activities = getCustomActivities() as Array<{ id: string }>
+  const filtered = activities.filter(a => a.id !== id)
+  setStorage(STORAGE_KEYS.CUSTOM_ACTIVITIES, filtered)
+  return filtered.length !== activities.length
+}
+
+// 自定义图片相关函数
+export function getCustomImages(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS.CUSTOM_IMAGES) || []
+}
+
+export function saveCustomImage(image: unknown): void {
+  const images = getCustomImages()
+  images.unshift(image)
+  setStorage(STORAGE_KEYS.CUSTOM_IMAGES, images)
+}
+
+export function deleteCustomImage(id: string): boolean {
+  const images = getCustomImages() as Array<{ id: string }>
+  const filtered = images.filter(i => i.id !== id)
+  setStorage(STORAGE_KEYS.CUSTOM_IMAGES, filtered)
+  return filtered.length !== images.length
 }
