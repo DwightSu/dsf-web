@@ -2,7 +2,7 @@
 
 import type { Activity, Group, Image, Comment, GroupMember } from './database'
 
-export interface ActivityWithDetails extends Activity {
+export interface ActivityWithDetails extends Omit<Activity, 'groups'> {
   groups: GroupWithMembers[]
   images: Image[]
   comments?: Comment[]
@@ -12,7 +12,7 @@ export interface GroupWithMembers extends Omit<Group, 'group_members'> {
   group_members: GroupMemberWithMember[]
 }
 
-export interface GroupMemberWithMember extends GroupMember {
+export interface GroupMemberWithMember extends Omit<GroupMember, 'members'> {
   members: {
     id: string
     nickname: string

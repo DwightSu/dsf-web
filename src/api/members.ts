@@ -61,12 +61,17 @@ export async function getMemberById(id: string) {
   }
 
   // 组装活动数据
-  const activities = groupMembers.map(gm => ({
-    activity_id: gm.groups.activity_id,
-    activity_name: gm.groups.activities.name,
-    activity_date: gm.groups.activities.activity_date,
-    group_name: gm.groups.name
-  }))
+  const activities = groupMembers.map(gm => {
+    const group = Array.isArray(gm.groups) ? gm.groups[0] : gm.groups
+    const activity = group && Array.isArray(group.activities) ? group.activities[0] : group?.activities
+    const act = activity as { name?: string; activity_date?: string } | undefined
+    return {
+      activity_id: group?.activity_id,
+      activity_name: act?.name,
+      activity_date: act?.activity_date,
+      group_name: group?.name
+    }
+  })
 
   const memberWithActivities: MemberWithActivities = {
     ...member,

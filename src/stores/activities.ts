@@ -167,7 +167,7 @@ export const useActivityStore = defineStore('activity', () => {
         }
 
         if (currentActivity.value?.id === id) {
-          currentActivity.value = { ...currentActivity.value, ...data }
+          currentActivity.value = { ...currentActivity.value, ...data } as ActivityWithDetails
         }
       }
 
