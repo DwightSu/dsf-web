@@ -4,13 +4,19 @@ import { Image as ImageIcon, Plus, Search, Trash2, Eye, ChevronLeft, ChevronRigh
 import PixelButton from '@/components/common/PixelButton.vue'
 import { mockImages, mockActivities } from '@/mock'
 import { formatDate } from '@/utils/format'
-import type { Image as ImageType } from '@/types/database'
-import { getCustomImages, saveCustomImage, deleteCustomImage } from '@/utils/storage'
+import type { Image as ImageType, Activity } from '@/types/database'
+import { getCustomImages, saveCustomImage, deleteCustomImage, getCustomActivities } from '@/utils/storage'
 
 const searchQuery = ref('')
 const activityFilter = ref('all')
 const currentPage = ref(1)
 const pageSize = 12
+
+// 合并mock数据和本地存储的自定义活动
+const allActivities = computed<Activity[]>(() => [
+  ...mockActivities,
+  ...(getCustomActivities() as Activity[])
+])
 
 // 合并mock数据和本地存储的自定义图片
 const images = ref<ImageType[]>([...mockImages, ...(getCustomImages() as ImageType[])])
@@ -55,15 +61,15 @@ const paginatedImages = computed(() => {
 })
 
 function getActivityName(activityId: string): string {
-  const activity = mockActivities.find(a => a.id === activityId)
-  return activity?.name || '未分类'
+  const activity = allActivities.value.find(a => a.id === activityId)
+  return activity?.name || '未知活动'
 }
 
 function openUploadModal() {
   uploadForm.value = {
-    activity_id: mockActivities[0]?.id || '',
-    description: '',
-    url: ''
+    activity_id: allActivities.value[0]?.id || '',
+    url: '',
+    description: ''
   }
   uploadError.value = ''
   showUploadModal.value = true
@@ -190,7 +196,7 @@ function confirmDelete() {
               class="pl-11 pr-8 py-3 bg-[#1a2744] border border-white/10 rounded-xl text-white focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 appearance-none cursor-pointer min-w-[160px] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
             >
               <option value="all" class="bg-[#1a2744] text-white">全部活动</option>
-              <option v-for="act in mockActivities" :key="act.id" :value="act.id" class="bg-[#1a2744] text-white">
+              <option v-for="act in allActivities" :key="act.id" :value="act.id" class="bg-[#1a2744] text-white">
                 {{ act.name }}
               </option>
             </select>
@@ -326,7 +332,7 @@ function confirmDelete() {
                   v-model="uploadForm.activity_id"
                   class="w-full px-4 py-3 bg-[#1a2744] border border-white/10 rounded-xl text-white focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all duration-200 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
                 >
-                  <option v-for="act in mockActivities" :key="act.id" :value="act.id" class="bg-[#1a2744] text-white">
+                  <option v-for="act in allActivities" :key="act.id" :value="act.id" class="bg-[#1a2744] text-white">
                     {{ act.name }}
                   </option>
                 </select>

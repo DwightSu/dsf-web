@@ -12,7 +12,11 @@ export const STORAGE_KEYS = {
   CACHE_ACTIVITIES: STORAGE_PREFIX + 'cache_activities',
   CACHE_MEMBERS: STORAGE_PREFIX + 'cache_members',
   CUSTOM_ACTIVITIES: STORAGE_PREFIX + 'custom_activities',
-  CUSTOM_IMAGES: STORAGE_PREFIX + 'custom_images'
+  CUSTOM_IMAGES: STORAGE_PREFIX + 'custom_images',
+  CUSTOM_GROUPS: STORAGE_PREFIX + 'custom_groups',
+  CUSTOM_GROUP_MEMBERS: STORAGE_PREFIX + 'custom_group_members',
+  CUSTOM_ACTIVITY_MEMBERS: STORAGE_PREFIX + 'custom_activity_members',
+  CUSTOM_COMMENTS: STORAGE_PREFIX + 'custom_comments'
 }
 
 // 获取存储项
@@ -161,4 +165,108 @@ export function deleteCustomImage(id: string): boolean {
   const filtered = images.filter(i => i.id !== id)
   setStorage(STORAGE_KEYS.CUSTOM_IMAGES, filtered)
   return filtered.length !== images.length
+}
+
+// 自定义小组相关函数
+export function getCustomGroups(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS.CUSTOM_GROUPS) || []
+}
+
+export function getCustomGroupsByActivity(activityId: string): unknown[] {
+  return getCustomGroups().filter((g: { activity_id: string }) => g.activity_id === activityId)
+}
+
+export function saveCustomGroup(group: unknown): void {
+  const groups = getCustomGroups()
+  groups.unshift(group)
+  setStorage(STORAGE_KEYS.CUSTOM_GROUPS, groups)
+}
+
+export function updateCustomGroup(id: string, updates: unknown): boolean {
+  const groups = getCustomGroups() as Array<{ id: string }>
+  const index = groups.findIndex(g => g.id === id)
+  if (index !== -1) {
+    groups[index] = { ...groups[index], ...(updates as object) }
+    setStorage(STORAGE_KEYS.CUSTOM_GROUPS, groups)
+    return true
+  }
+  return false
+}
+
+export function deleteCustomGroup(id: string): boolean {
+  const groups = getCustomGroups() as Array<{ id: string }>
+  const filtered = groups.filter(g => g.id !== id)
+  setStorage(STORAGE_KEYS.CUSTOM_GROUPS, filtered)
+  // 同时删除相关的小组成员
+  const members = getCustomGroupMembers().filter((gm: { group_id: string }) => gm.group_id !== id)
+  setStorage(STORAGE_KEYS.CUSTOM_GROUP_MEMBERS, members)
+  return filtered.length !== groups.length
+}
+
+// 自定义小组成员相关函数
+export function getCustomGroupMembers(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS.CUSTOM_GROUP_MEMBERS) || []
+}
+
+export function getCustomGroupMembersByGroup(groupId: string): unknown[] {
+  return getCustomGroupMembers().filter((gm: { group_id: string }) => gm.group_id === groupId)
+}
+
+export function addCustomGroupMember(member: unknown): void {
+  const members = getCustomGroupMembers()
+  members.push(member)
+  setStorage(STORAGE_KEYS.CUSTOM_GROUP_MEMBERS, members)
+}
+
+export function removeCustomGroupMember(id: string): boolean {
+  const members = getCustomGroupMembers() as Array<{ id: string }>
+  const filtered = members.filter(m => m.id !== id)
+  setStorage(STORAGE_KEYS.CUSTOM_GROUP_MEMBERS, filtered)
+  return filtered.length !== members.length
+}
+
+// 活动参与成员（非分组模式）
+export function getCustomActivityMembers(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS.CUSTOM_ACTIVITY_MEMBERS) || []
+}
+
+export function getCustomActivityMembersByActivity(activityId: string): unknown[] {
+  return getCustomActivityMembers().filter((am: { activity_id: string }) => am.activity_id === activityId)
+}
+
+export function addCustomActivityMember(member: unknown): void {
+  const members = getCustomActivityMembers()
+  members.push(member)
+  setStorage(STORAGE_KEYS.CUSTOM_ACTIVITY_MEMBERS, members)
+}
+
+export function removeCustomActivityMember(activityId: string, memberId: string): boolean {
+  const members = getCustomActivityMembers() as Array<{ activity_id: string; member_id: string; id: string }>
+  const filtered = members.filter(m => !(m.activity_id === activityId && m.member_id === memberId))
+  setStorage(STORAGE_KEYS.CUSTOM_ACTIVITY_MEMBERS, filtered)
+  return filtered.length !== members.length
+}
+
+// 自定义评论相关函数
+export function getCustomComments(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS.CUSTOM_COMMENTS) || []
+}
+
+export function getCustomCommentsByActivity(activityId: string): unknown[] {
+  return getCustomComments().filter((c: { target_type: string; target_id: string }) =>
+    c.target_type === 'activity' && c.target_id === activityId
+  )
+}
+
+export function saveCustomComment(comment: unknown): void {
+  const comments = getCustomComments()
+  comments.push(comment)
+  setStorage(STORAGE_KEYS.CUSTOM_COMMENTS, comments)
+}
+
+export function deleteCustomComment(id: string): boolean {
+  const comments = getCustomComments() as Array<{ id: string }>
+  const filtered = comments.filter(c => c.id !== id)
+  setStorage(STORAGE_KEYS.CUSTOM_COMMENTS, filtered)
+  return filtered.length !== comments.length
 }

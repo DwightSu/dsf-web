@@ -5,7 +5,7 @@ import { Calendar, Search, Users, Filter, X, ChevronLeft, ChevronRight, Sparkles
 import { mockActivities, mockGroups, mockGroupMembers } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Activity } from '@/types/database'
-import { getCustomActivities } from '@/utils/storage'
+import { getCustomActivities, getCustomGroups, getCustomGroupMembers, getCustomActivityMembers } from '@/utils/storage'
 
 const loading = ref(false)
 const searchQuery = ref('')
@@ -59,11 +59,21 @@ const paginatedActivities = computed(() => {
 })
 
 function getParticipantCount(activityId: string): number {
-  const groups = mockGroups.filter(g => g.activity_id === activityId)
-  const groupIds = groups.map(g => g.id)
-  const members = mockGroupMembers.filter(gm => groupIds.includes(gm.group_id))
-  const uniqueMemberIds = [...new Set(members.map(m => m.member_id))]
-  return uniqueMemberIds.length
+  const allGroups = [...mockGroups, ...(getCustomGroups() as Array<{ id: string; activity_id: string }>)]
+  const allGroupMembers = [...mockGroupMembers, ...(getCustomGroupMembers() as Array<{ group_id: string; member_id: string }>)]
+
+  const groups = allGroups.filter(g => g.activity_id === activityId)
+  if (groups.length > 0) {
+    const groupIds = groups.map(g => g.id)
+    const members = allGroupMembers.filter(gm => groupIds.includes(gm.group_id))
+    const uniqueMemberIds = [...new Set(members.map(m => m.member_id))]
+    return uniqueMemberIds.length
+  }
+
+  const customMembers = getCustomActivityMembers().filter(
+    (m: { activity_id: string }) => m.activity_id === activityId
+  )
+  return customMembers.length > 0 ? customMembers.length : 12
 }
 
 function clearFilters() {

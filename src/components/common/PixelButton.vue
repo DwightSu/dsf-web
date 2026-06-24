@@ -125,7 +125,8 @@ function handleClick(event: MouseEvent) {
 .pixel-button {
   /* 使用像素字体 */
   font-family: 'Press Start 2P', 'VT323', monospace;
-  /* 像素化边框效果 */
+  /* 圆角像素边框效果 */
+  border-radius: 0.75rem;
   box-shadow:
     4px 4px 0 rgba(0, 0, 0, 0.3),
     inset -2px -2px 0 rgba(0, 0, 0, 0.2),
@@ -214,16 +215,12 @@ function handleClick(event: MouseEvent) {
   height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
-  border-radius: 0;
-  animation: pixel-spin 1s linear infinite;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes pixel-spin {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(90deg); }
-  50% { transform: rotate(180deg); }
-  75% { transform: rotate(270deg); }
-  100% { transform: rotate(360deg); }
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* 像素字体 */
