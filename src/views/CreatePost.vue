@@ -121,7 +121,7 @@ async function handleSubmit() {
             <input
               v-model="title"
               type="text"
-              class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green"
+              class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green rounded-xl"
               placeholder="输入帖子标题..."
             />
             <p v-if="errors.title" class="text-redstone-red text-sm mt-2">{{ errors.title }}</p>
@@ -133,7 +133,7 @@ async function handleSubmit() {
             <input
               v-model="tags"
               type="text"
-              class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green"
+              class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green rounded-xl"
               placeholder="例如: 建筑, 生存, PVP"
             />
           </div>
@@ -167,7 +167,7 @@ async function handleSubmit() {
               <textarea
                 v-model="content"
                 rows="10"
-                class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green resize-none font-mono text-sm"
+                class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green resize-none font-mono text-sm rounded-xl"
                 placeholder="支持 Markdown 语法..."
               />
               <p class="text-xs text-white/50 mt-2">
@@ -176,7 +176,7 @@ async function handleSubmit() {
             </div>
 
             <!-- 预览模式 -->
-            <div v-else class="min-h-[250px] bg-dark-surface border-2 border-pixel-border p-4 overflow-auto">
+            <div v-else class="min-h-[250px] bg-dark-surface border-2 border-pixel-border p-4 overflow-auto rounded-xl">
               <div v-if="content" v-html="renderedContent" class="prose prose-invert max-w-none"></div>
               <div v-else class="text-white/50 text-center py-8">
                 暂无内容预览

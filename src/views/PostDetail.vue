@@ -180,7 +180,7 @@ onMounted(() => {
                 <textarea
                   v-model="editContent"
                   rows="15"
-                  class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green resize-none font-mono text-sm"
+                  class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green resize-none font-mono text-sm rounded-xl"
                   placeholder="支持 Markdown 语法..."
                 />
               </div>
@@ -189,7 +189,7 @@ onMounted(() => {
                 <input
                   v-model="editTags"
                   type="text"
-                  class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green"
+                  class="w-full bg-dark-surface border-2 border-pixel-border text-white px-4 py-3 outline-none focus:border-grass-green rounded-xl"
                   placeholder="例如: 建筑, 生存, PVP"
                 />
               </div>

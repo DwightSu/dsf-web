@@ -303,12 +303,12 @@ function switchTab(tab: TabType) {
         </div>
         <select
           v-model="statusFilter"
-          class="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-rose-500/50 focus:ring-2 focus:ring-rose-500/20 transition-all duration-200 appearance-none cursor-pointer min-w-[140px]"
+          class="px-4 py-3 bg-[#1a2744] border border-white/10 rounded-xl text-white focus:outline-none focus:border-rose-500/50 focus:ring-2 focus:ring-rose-500/20 transition-all duration-200 appearance-none cursor-pointer min-w-[140px] bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
         >
-          <option value="all">全部状态</option>
-          <option value="pending">待审核</option>
-          <option value="approved">已通过</option>
-          <option value="rejected">已拒绝</option>
+          <option value="all" class="bg-[#1a2744] text-white">全部状态</option>
+          <option value="pending" class="bg-[#1a2744] text-white">待审核</option>
+          <option value="approved" class="bg-[#1a2744] text-white">已通过</option>
+          <option value="rejected" class="bg-[#1a2744] text-white">已拒绝</option>
         </select>
       </div>
 
