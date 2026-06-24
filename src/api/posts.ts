@@ -218,7 +218,6 @@ export async function getPendingPosts() {
       created_at,
       updated_at,
       profiles (
-        id,
         nickname,
         avatar_url
       )
@@ -226,7 +225,7 @@ export async function getPendingPosts() {
     .eq('status', 'pending')
     .order('created_at', { ascending: false })
 
-  return { data: data as (Post & { profiles: { id: string; nickname: string; avatar_url: string | null } })[], error }
+  return { data: data as PostWithAuthor[], error }
 }
 
 // 获取已隐藏的帖子（管理员用）
@@ -244,7 +243,6 @@ export async function getHiddenPosts() {
       created_at,
       updated_at,
       profiles (
-        id,
         nickname,
         avatar_url
       )
@@ -252,7 +250,7 @@ export async function getHiddenPosts() {
     .eq('status', 'hidden')
     .order('updated_at', { ascending: false })
 
-  return { data: data as (Post & { profiles: { id: string; nickname: string; avatar_url: string | null } })[], error }
+  return { data: data as PostWithAuthor[], error }
 }
 
 // 审核帖子通过

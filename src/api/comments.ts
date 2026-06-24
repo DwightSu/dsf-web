@@ -115,7 +115,6 @@ export async function getPendingComments() {
       status,
       created_at,
       profiles (
-        id,
         nickname,
         avatar_url
       )
@@ -139,7 +138,6 @@ export async function getHiddenComments() {
       status,
       created_at,
       profiles (
-        id,
         nickname,
         avatar_url
       )
