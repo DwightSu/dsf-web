@@ -12,10 +12,11 @@ import {
   Plus,
   TrendingUp,
   Newspaper,
-  User
+  User,
+  ArrowRight
 } from 'lucide-vue-next'
 import PixelButton from '@/components/common/PixelButton.vue'
-import { mockPosts, mockComments, mockPostAuthors } from '@/mock'
+import { getAllPosts, getPostCommentCount, getPostAuthor } from '@/mock'
 import { formatDate } from '@/utils/format'
 import { useAuthStore } from '@/stores/auth'
 import type { Post } from '@/types/database'
@@ -56,14 +57,6 @@ function getPostCategory(post: Post): string {
     return 'help'
   }
   return 'chat'
-}
-
-function getPostCommentCount(postId: string): number {
-  return mockComments.filter(c => c.target_type === 'post' && c.target_id === postId).length
-}
-
-function getPostAuthor(postId: string) {
-  return mockPostAuthors[postId] || { nickname: '匿名', avatar_url: null }
 }
 
 function getCategoryColorClass(category: string): string {
@@ -119,7 +112,7 @@ function getAvatarUrl(nickname: string): string {
 }
 
 const filteredPosts = computed(() => {
-  let result = [...mockPosts]
+  let result = [...getAllPosts()]
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
@@ -218,10 +211,11 @@ onMounted(() => {
 
             <div v-if="authStore.isLoggedIn" class="flex-shrink-0">
               <RouterLink to="/forum/create">
-                <PixelButton variant="primary" size="md">
+                <button class="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-lime-500 text-white font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">
                   <Plus :size="18" />
-                  发布帖子
-                </PixelButton>
+                  <span>发布帖子</span>
+                  <ArrowRight :size="16" class="opacity-0 group-hover:opacity-100 -ml-2 group-hover:ml-0 transition-all duration-300" />
+                </button>
               </RouterLink>
             </div>
           </div>
@@ -282,7 +276,7 @@ onMounted(() => {
           <RouterLink
             v-for="(post, index) in paginatedPosts"
             :key="post.id"
-            :to="`/forum/${post.id}`"
+            :to="`/forum/post/${post.id}`"
             class="post-card block animate-scale-in"
             :style="{ animationDelay: `${index * 0.08}s` }"
           >
@@ -314,7 +308,7 @@ onMounted(() => {
                   </div>
 
                   <p class="text-white/60 text-sm mb-4 line-clamp-2 leading-relaxed">
-                    {{ getExcerpt(post.content || '') }}
+                    {{ post.summary || getExcerpt(post.content || '') }}
                   </p>
 
                   <div class="flex flex-wrap items-center gap-4 text-xs">

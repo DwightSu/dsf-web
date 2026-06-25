@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
@@ -6,9 +6,10 @@ import {
   BookOpen, ScrollText, Trophy, Edit, Save, Upload, Trash2, Plus, Search, UserPlus,
   Settings, UserMinus, MessageCircle, Send, ImagePlus
 } from 'lucide-vue-next'
-import { mockActivities, mockMembers, mockImages, mockGroupMembers, mockGroups } from '@/mock'
+import { mockActivities, mockImages, mockGroupMembers, mockGroups } from '@/mock'
 import { formatDate } from '@/utils/format'
 import type { Activity, Group, Member, GroupMember, Image as ImageType, Comment } from '@/types/database'
+import { useMemberStore } from '@/stores/members'
 import {
   getCustomActivities, getCustomImages, saveCustomImage, deleteCustomImage,
   getCustomGroups, getCustomGroupMembers, saveCustomGroup, deleteCustomGroup,
@@ -23,6 +24,7 @@ import PixelButton from '@/components/common/PixelButton.vue'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const memberStore = useMemberStore()
 
 const activity = ref<Activity | null>(null)
 const activityImages = ref<ImageType[]>([])
@@ -78,9 +80,8 @@ const removedGroupMemberIds = ref<Set<string>>(new Set())
 // 成员刷新计数器，用于触发响应式更新
 const memberRefreshKey = ref(0)
 
-// 评论相关
 const allMembers = computed(() => {
-  return mockMembers
+  return memberStore.allMembers
 })
 
 const filteredMembers = computed(() => {
@@ -107,7 +108,7 @@ const activityGroups = computed(() => {
       .filter(gm => !removedGroupMemberIds.value.has(gm.id))
       .map(gm => ({
         ...gm,
-        members: mockMembers.find(m => m.id === gm.member_id)
+        members: memberStore.getMemberById(gm.member_id)
       })) as GroupMember[]
   }))
 })
@@ -136,16 +137,22 @@ function loadActivity() {
 
 const allMembersList = computed(() => {
   if (!activity.value?.has_groups) {
-    // 引用 memberRefreshKey 以触发响应式更新
     void memberRefreshKey.value
     const customMembers = getCustomActivityMembersByActivity(activityId.value) as Array<{ member_id: string }>
     const customMemberIds = new Set(customMembers.map(m => m.member_id))
 
-    const defaultMembers = mockMembers.slice(0, 12)
-    const customMembersData = mockMembers.filter(m => customMemberIds.has(m.id))
+    const allMembers = memberStore.allMembers
+    const defaultMembers = allMembers.slice(0, 12)
+    const customMembersData = allMembers.filter(m => customMemberIds.has(m.id))
 
+    const seenIds = new Set<string>()
     return [...defaultMembers, ...customMembersData]
-      .filter(m => !removedMemberIds.value.has(m.id))
+      .filter(m => {
+        if (removedMemberIds.value.has(m.id)) return false
+        if (seenIds.has(m.id)) return false
+        seenIds.add(m.id)
+        return true
+      })
       .map(m => ({
         ...m,
         canDelete: true
@@ -157,7 +164,7 @@ const allMembersList = computed(() => {
       if (gm.member_id) memberIds.add(gm.member_id)
     })
   })
-  return mockMembers.filter(m => memberIds.has(m.id))
+  return memberStore.allMembers.filter(m => memberIds.has(m.id))
 })
 
 const participantCount = computed(() => {
@@ -534,7 +541,7 @@ function getCommentAuthorAvatar(authorId: string | null): string {
   }
 
   // 尝试从成员库获取
-  const member = mockMembers.find(m => m.id === authorId)
+  const member = memberStore.getMemberById(authorId)
   if (member) {
     return getMemberAvatar(member)
   }
@@ -549,7 +556,7 @@ function getCommentAuthorName(comment: Comment): string {
   if (authStore.user?.id === comment.author_id) {
     return authStore.user.nickname || '匿名用户'
   }
-  const member = mockMembers.find(m => m.id === comment.author_id)
+  const member = memberStore.getMemberById(comment.author_id)
   return member?.nickname || '未知用户'
 }
 

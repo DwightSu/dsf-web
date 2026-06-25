@@ -46,6 +46,7 @@ export interface Member {
   qq_number: string | null
   avatar_url: string | null
   notes: string | null
+  tags: string[]
   created_at: string
 }
 
@@ -69,6 +70,7 @@ export interface Image {
 export interface Post {
   id: string
   title: string
+  summary?: string | null
   content: string
   author_id: string | null
   views: number
@@ -99,3 +101,27 @@ export type GroupMemberInsert = Omit<GroupMember, 'id' | 'joined_at'>
 export type ImageInsert = Omit<Image, 'id' | 'created_at'>
 export type PostInsert = Omit<Post, 'id' | 'views' | 'created_at' | 'updated_at' | 'profiles'>
 export type CommentInsert = Omit<Comment, 'id' | 'created_at' | 'profiles'>
+
+// 积分记录
+export interface ScoreRecord {
+  id: string
+  member_id: string
+  activity_id: string
+  points: number
+  reason: string
+  created_at: string
+}
+
+// 特殊记录
+export interface SpecialRecord {
+  id: string
+  member_id: string
+  record_type: 'jail' | 'achievement' | 'award' | 'punishment' | 'special'
+  title: string
+  description: string
+  related_activity_id: string | null
+  created_at: string
+}
+
+export type ScoreRecordInsert = Omit<ScoreRecord, 'id' | 'created_at'>
+export type SpecialRecordInsert = Omit<SpecialRecord, 'id' | 'created_at'>

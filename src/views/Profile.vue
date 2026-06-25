@@ -215,8 +215,18 @@ async function handleChangePassword() {
   isChangingPassword.value = true
   try {
     await new Promise(resolve => setTimeout(resolve, 500))
-    showToast('success', '密码修改成功！')
-    togglePasswordForm()
+    const result = authStore.changePassword(currentPassword.value, newPassword.value)
+    
+    if (result.success) {
+      showToast('success', '密码修改成功！')
+      togglePasswordForm()
+    } else {
+      if (result.error === '当前密码错误') {
+        passwordErrors.value.currentPassword = result.error
+      } else {
+        showToast('error', result.error || '密码修改失败，请稍后重试')
+      }
+    }
   } catch (error) {
     showToast('error', '密码修改失败，请稍后重试')
   } finally {
@@ -402,17 +412,24 @@ async function handleLogout() {
                     <input
                       v-model="currentPassword"
                       :type="showCurrentPassword ? 'text' : 'password'"
-                      class="w-full px-4 py-3 pl-11 pr-11 border-2 border-gray-200 rounded-xl focus:border-grass-green focus:outline-none focus:ring-4 focus:ring-grass-green/20 transition-all"
+                      class="w-full px-4 py-3 pl-11 pr-24 border-2 border-gray-200 rounded-xl focus:border-grass-green focus:outline-none focus:ring-4 focus:ring-grass-green/20 transition-all"
                       placeholder="输入当前密码"
+                      autocomplete="off"
                     />
                     <Key class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <button
-                      type="button"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                      @click="showCurrentPassword = !showCurrentPassword"
-                    >
-                      <component :is="showCurrentPassword ? EyeOff : Eye" class="w-5 h-5" />
-                    </button>
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                      <span class="text-xs text-gray-400 font-mono min-w-[2.5rem] text-right select-none">
+                        {{ currentPassword.length }}
+                      </span>
+                      <button
+                        type="button"
+                        class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                        :title="showCurrentPassword ? '隐藏密码' : '显示密码'"
+                        @click="showCurrentPassword = !showCurrentPassword"
+                      >
+                        <component :is="showCurrentPassword ? EyeOff : Eye" class="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <p v-if="passwordErrors.currentPassword" class="text-red-500 text-sm mt-1.5">
                     {{ passwordErrors.currentPassword }}
@@ -425,17 +442,24 @@ async function handleLogout() {
                     <input
                       v-model="newPassword"
                       :type="showNewPassword ? 'text' : 'password'"
-                      class="w-full px-4 py-3 pl-11 pr-11 border-2 border-gray-200 rounded-xl focus:border-grass-green focus:outline-none focus:ring-4 focus:ring-grass-green/20 transition-all"
+                      class="w-full px-4 py-3 pl-11 pr-24 border-2 border-gray-200 rounded-xl focus:border-grass-green focus:outline-none focus:ring-4 focus:ring-grass-green/20 transition-all"
                       placeholder="输入新密码"
+                      autocomplete="new-password"
                     />
                     <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <button
-                      type="button"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                      @click="showNewPassword = !showNewPassword"
-                    >
-                      <component :is="showNewPassword ? EyeOff : Eye" class="w-5 h-5" />
-                    </button>
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                      <span class="text-xs text-gray-400 font-mono min-w-[2.5rem] text-right select-none">
+                        {{ newPassword.length }}
+                      </span>
+                      <button
+                        type="button"
+                        class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                        :title="showNewPassword ? '隐藏密码' : '显示密码'"
+                        @click="showNewPassword = !showNewPassword"
+                      >
+                        <component :is="showNewPassword ? EyeOff : Eye" class="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <p v-if="passwordErrors.newPassword" class="text-red-500 text-sm mt-1.5">
                     {{ passwordErrors.newPassword }}
@@ -448,18 +472,25 @@ async function handleLogout() {
                     <input
                       v-model="confirmNewPassword"
                       :type="showConfirmPassword ? 'text' : 'password'"
-                      class="w-full px-4 py-3 pl-11 pr-11 border-2 border-gray-200 rounded-xl focus:border-grass-green focus:outline-none focus:ring-4 focus:ring-grass-green/20 transition-all"
+                      class="w-full px-4 py-3 pl-11 pr-24 border-2 border-gray-200 rounded-xl focus:border-grass-green focus:outline-none focus:ring-4 focus:ring-grass-green/20 transition-all"
                       placeholder="再次输入新密码"
+                      autocomplete="new-password"
                       @keyup.enter="handleChangePassword"
                     />
                     <Lock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <button
-                      type="button"
-                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                      @click="showConfirmPassword = !showConfirmPassword"
-                    >
-                      <component :is="showConfirmPassword ? EyeOff : Eye" class="w-5 h-5" />
-                    </button>
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                      <span class="text-xs text-gray-400 font-mono min-w-[2.5rem] text-right select-none">
+                        {{ confirmNewPassword.length }}
+                      </span>
+                      <button
+                        type="button"
+                        class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                        :title="showConfirmPassword ? '隐藏密码' : '显示密码'"
+                        @click="showConfirmPassword = !showConfirmPassword"
+                      >
+                        <component :is="showConfirmPassword ? EyeOff : Eye" class="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   <p v-if="passwordErrors.confirmPassword" class="text-red-500 text-sm mt-1.5">
                     {{ passwordErrors.confirmPassword }}
@@ -476,7 +507,7 @@ async function handleLogout() {
                   </button>
                   <button
                     type="submit"
-                    class="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-grass-green to-grass-green/80 text-white font-medium hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
+                    class="flex-1 px-4 py-3 rounded-xl bg-grass-green text-white font-semibold shadow-md confirm-btn hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
                     :disabled="isChangingPassword"
                   >
                     <Save v-if="!isChangingPassword" class="w-4 h-4" />
@@ -533,6 +564,16 @@ async function handleLogout() {
 .profile-page {
   background: linear-gradient(135deg, #f0fdf4 0%, #fffbeb 50%, #fef3c7 100%);
   min-height: 100vh;
+}
+
+.confirm-btn {
+  background-color: #5CB85C;
+  background-image: linear-gradient(135deg, #5CB85C 0%, #449D44 100%);
+  border: 1px solid #449D44;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background-image: linear-gradient(135deg, #449D44 0%, #357a35 100%);
 }
 
 :deep(.grayscale) {

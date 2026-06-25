@@ -16,7 +16,8 @@ export const STORAGE_KEYS = {
   CUSTOM_GROUPS: STORAGE_PREFIX + 'custom_groups',
   CUSTOM_GROUP_MEMBERS: STORAGE_PREFIX + 'custom_group_members',
   CUSTOM_ACTIVITY_MEMBERS: STORAGE_PREFIX + 'custom_activity_members',
-  CUSTOM_COMMENTS: STORAGE_PREFIX + 'custom_comments'
+  CUSTOM_COMMENTS: STORAGE_PREFIX + 'custom_comments',
+  CUSTOM_MEMBERS: STORAGE_PREFIX + 'custom_members'
 }
 
 // 获取存储项
@@ -269,4 +270,171 @@ export function deleteCustomComment(id: string): boolean {
   const filtered = comments.filter(c => c.id !== id)
   setStorage(STORAGE_KEYS.CUSTOM_COMMENTS, filtered)
   return filtered.length !== comments.length
+}
+
+// 自定义成员相关函数
+export function getCustomMembers(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS.CUSTOM_MEMBERS) || []
+}
+
+export function saveCustomMember(member: unknown): void {
+  const members = getCustomMembers()
+  members.push(member)
+  setStorage(STORAGE_KEYS.CUSTOM_MEMBERS, members)
+}
+
+export function updateCustomMember(id: string, updates: unknown): boolean {
+  const members = getCustomMembers() as Array<{ id: string }>
+  const index = members.findIndex(m => m.id === id)
+  if (index !== -1) {
+    members[index] = { ...members[index], ...(updates as object) }
+    setStorage(STORAGE_KEYS.CUSTOM_MEMBERS, members)
+    return true
+  }
+  return false
+}
+
+export function deleteCustomMember(id: string): boolean {
+  const members = getCustomMembers() as Array<{ id: string }>
+  const filtered = members.filter(m => m.id !== id)
+  setStorage(STORAGE_KEYS.CUSTOM_MEMBERS, filtered)
+  return filtered.length !== members.length
+}
+
+export function checkCustomMemberExists(qqNumber: string): boolean {
+  const members = getCustomMembers() as Array<{ qq_number: string | null }>
+  return members.some(m => m.qq_number === qqNumber)
+}
+
+// 积分记录相关函数
+export const STORAGE_KEYS_SCORES = {
+  SCORE_RECORDS: STORAGE_PREFIX + 'score_records',
+  SPECIAL_RECORDS: STORAGE_PREFIX + 'special_records'
+}
+
+export function getScoreRecords(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS_SCORES.SCORE_RECORDS) || []
+}
+
+export function getScoreRecordsByMember(memberId: string): unknown[] {
+  return getScoreRecords().filter((s: { member_id: string }) => s.member_id === memberId)
+}
+
+export function addScoreRecord(record: unknown): void {
+  const records = getScoreRecords()
+  records.push(record)
+  setStorage(STORAGE_KEYS_SCORES.SCORE_RECORDS, records)
+}
+
+export function getMemberTotalScore(memberId: string): number {
+  const records = getScoreRecordsByMember(memberId) as Array<{ points: number }>
+  return records.reduce((sum, r) => sum + r.points, 0)
+}
+
+// 特殊记录相关函数
+export function getSpecialRecords(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS_SCORES.SPECIAL_RECORDS) || []
+}
+
+export function getSpecialRecordsByMember(memberId: string): unknown[] {
+  return getSpecialRecords().filter((r: { member_id: string }) => r.member_id === memberId)
+}
+
+export function addSpecialRecord(record: unknown): void {
+  const records = getSpecialRecords()
+  records.unshift(record)
+  setStorage(STORAGE_KEYS_SCORES.SPECIAL_RECORDS, records)
+}
+
+export function deleteSpecialRecord(id: string): boolean {
+  const records = getSpecialRecords() as Array<{ id: string }>
+  const filtered = records.filter(r => r.id !== id)
+  setStorage(STORAGE_KEYS_SCORES.SPECIAL_RECORDS, filtered)
+  return filtered.length !== records.length
+}
+
+export const STORAGE_KEYS_POSTS = {
+  CUSTOM_POSTS: STORAGE_PREFIX + 'custom_posts',
+  CUSTOM_POST_COMMENTS: STORAGE_PREFIX + 'custom_post_comments',
+  POST_IMAGES: STORAGE_PREFIX + 'post_images'
+}
+
+export interface PostImage {
+  id: string
+  data: string
+  name: string
+  created_at: string
+}
+
+export function getPostImages(): PostImage[] {
+  return getStorage<PostImage[]>(STORAGE_KEYS_POSTS.POST_IMAGES) || []
+}
+
+export function savePostImage(image: PostImage): void {
+  const images = getPostImages()
+  images.unshift(image)
+  setStorage(STORAGE_KEYS_POSTS.POST_IMAGES, images)
+}
+
+export function getPostImageById(id: string): PostImage | null {
+  const images = getPostImages()
+  return images.find(img => img.id === id) || null
+}
+
+export function deletePostImage(id: string): boolean {
+  const images = getPostImages()
+  const filtered = images.filter(img => img.id !== id)
+  setStorage(STORAGE_KEYS_POSTS.POST_IMAGES, filtered)
+  return filtered.length !== images.length
+}
+
+export function getCustomPosts(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS_POSTS.CUSTOM_POSTS) || []
+}
+
+export function saveCustomPost(post: unknown): void {
+  const posts = getCustomPosts()
+  posts.unshift(post)
+  setStorage(STORAGE_KEYS_POSTS.CUSTOM_POSTS, posts)
+}
+
+export function getCustomPostById(id: string): unknown | null {
+  const posts = getCustomPosts() as Array<{ id: string }>
+  return posts.find(p => p.id === id) || null
+}
+
+export function updateCustomPost(id: string, updates: unknown): boolean {
+  const posts = getCustomPosts() as Array<{ id: string }>
+  const index = posts.findIndex(p => p.id === id)
+  if (index !== -1) {
+    posts[index] = { ...posts[index], ...(updates as object) }
+    setStorage(STORAGE_KEYS_POSTS.CUSTOM_POSTS, posts)
+    return true
+  }
+  return false
+}
+
+export function incrementPostViews(id: string): void {
+  const posts = getCustomPosts() as Array<{ id: string; views: number }>
+  const post = posts.find(p => p.id === id)
+  if (post) {
+    post.views = (post.views || 0) + 1
+    setStorage(STORAGE_KEYS_POSTS.CUSTOM_POSTS, posts)
+  }
+}
+
+export function getCustomPostComments(): unknown[] {
+  return getStorage<unknown[]>(STORAGE_KEYS_POSTS.CUSTOM_POST_COMMENTS) || []
+}
+
+export function getCustomPostCommentsByPost(postId: string): unknown[] {
+  return getCustomPostComments().filter((c: { target_type: string; target_id: string }) =>
+    c.target_type === 'post' && c.target_id === postId
+  )
+}
+
+export function saveCustomPostComment(comment: unknown): void {
+  const comments = getCustomPostComments()
+  comments.push(comment)
+  setStorage(STORAGE_KEYS_POSTS.CUSTOM_POST_COMMENTS, comments)
 }

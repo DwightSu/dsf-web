@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
-import { Menu, X, LogOut, Settings, Home, Calendar, Users, MessageSquare, Sparkles } from 'lucide-vue-next'
+import { Menu, X, LogOut, Settings, Home, Calendar, Users, MessageSquare, Sparkles, Trophy, BookOpen } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
@@ -15,6 +15,8 @@ const navLinks = [
   { path: '/', label: '首页', icon: Home },
   { path: '/activities', label: '活动', icon: Calendar },
   { path: '/members', label: '成员库', icon: Users },
+  { path: '/scoreboard', label: '积分榜', icon: Trophy },
+  { path: '/special-records', label: '特殊榜单', icon: BookOpen },
   { path: '/forum', label: '论坛', icon: MessageSquare }
 ]
 

@@ -107,13 +107,24 @@ export function validatePostTitle(title: string): ValidationResult {
   return { valid: true, message: '' }
 }
 
+// 验证帖子简介
+export function validatePostSummary(summary: string | null | undefined): ValidationResult {
+  if (!summary) {
+    return { valid: true, message: '' }
+  }
+  if (summary.length > 200) {
+    return { valid: false, message: '帖子简介不能超过200个字符' }
+  }
+  return { valid: true, message: '' }
+}
+
 // 验证帖子内容
 export function validatePostContent(content: string): ValidationResult {
   if (!content) {
     return { valid: false, message: '帖子内容不能为空' }
   }
-  if (content.length > 10000) {
-    return { valid: false, message: '帖子内容不能超过10000个字符' }
+  if (content.length > 50000) {
+    return { valid: false, message: '帖子内容不能超过50000个字符' }
   }
   return { valid: true, message: '' }
 }

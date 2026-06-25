@@ -12,8 +12,11 @@ import {
   Crown,
   Heart
 } from 'lucide-vue-next'
-import { mockActivities, mockMembers, mockPosts, mockImages } from '@/mock'
+import { mockActivities, mockPosts, mockImages } from '@/mock'
 import { formatDate } from '@/utils/format'
+import { useMemberStore } from '@/stores/members'
+
+const memberStore = useMemberStore()
 
 const heroVisible = ref(false)
 const statsVisible = ref(false)
@@ -39,7 +42,7 @@ const latestActivities = computed(() => {
 
 const stats = computed(() => [
   { label: '活动总数', value: mockActivities.length, icon: PartyPopper, color: 'from-green-400 to-emerald-500' },
-  { label: '参与玩家', value: mockMembers.length, icon: Users, color: 'from-amber-400 to-orange-500' },
+  { label: '参与玩家', value: memberStore.memberCount, icon: Users, color: 'from-amber-400 to-orange-500' },
   { label: '精彩瞬间', value: mockImages.length, icon: ImageIcon, color: 'from-yellow-400 to-amber-500' },
   { label: '论坛帖子', value: mockPosts.length, icon: MessageSquare, color: 'from-lime-400 to-green-500' }
 ])

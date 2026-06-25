@@ -51,6 +51,24 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/scoreboard',
+    name: 'Scoreboard',
+    component: () => import('@/views/Scoreboard.vue'),
+    meta: {
+      title: '积分排行榜',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/special-records',
+    name: 'SpecialRecords',
+    component: () => import('@/views/SpecialRecords.vue'),
+    meta: {
+      title: '特殊榜单',
+      requiresAuth: false
+    }
+  },
+  {
     path: '/forum',
     name: 'Forum',
     component: () => import('@/views/Forum.vue'),

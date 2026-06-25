@@ -7,8 +7,11 @@ import {
   Sparkles, Settings, Shield
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
-import { mockActivities, mockMembers, mockPosts, mockImages } from '@/mock'
+import { useMemberStore } from '@/stores/members'
+import { mockActivities, mockPosts, mockImages } from '@/mock'
 import { formatDate } from '@/utils/format'
+
+const memberStore = useMemberStore()
 
 const authStore = useAuthStore()
 

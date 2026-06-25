@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useMemberStore } from './members'
 
 export interface AuthUser {
   id: string
@@ -230,6 +231,16 @@ export const useAuthStore = defineStore('auth', () => {
       users.push(newUser)
       saveUsers(users)
 
+      const memberStore = useMemberStore()
+      memberStore.addMember({
+        id: newUser.id,
+        nickname: newUser.nickname,
+        qq_number: newUser.qq_number,
+        avatar_url: avatar,
+        notes: '新加入的小伙伴',
+        tags: ['萌新']
+      })
+
       const authUser: AuthUser = {
         id: newUser.id,
         qq_number: newUser.qq_number,
@@ -281,6 +292,28 @@ export const useAuthStore = defineStore('auth', () => {
         saveUsers(users)
       }
     }
+  }
+
+  function changePassword(currentPassword: string, newPassword: string): { success: boolean; error?: string } {
+    if (!user.value) {
+      return { success: false, error: '用户未登录' }
+    }
+
+    const users = loadUsers()
+    const foundUser = users.find(u => u.id === user.value?.id)
+
+    if (!foundUser) {
+      return { success: false, error: '用户不存在' }
+    }
+
+    if (foundUser.password !== currentPassword) {
+      return { success: false, error: '当前密码错误' }
+    }
+
+    foundUser.password = newPassword
+    saveUsers(users)
+
+    return { success: true }
   }
 
   function updateAvatar(avatarDataUrl: string) {
@@ -342,6 +375,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     logout,
     updateUser,
+    changePassword,
     updateAvatar,
     getAllUsers,
     deleteUser,

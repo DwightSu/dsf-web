@@ -47,6 +47,18 @@ const currentYear = new Date().getFullYear()
               成员库
             </RouterLink>
             <RouterLink
+              to="/scoreboard"
+              class="text-sm text-white/60 hover:text-grass-green transition-colors"
+            >
+              积分排行榜
+            </RouterLink>
+            <RouterLink
+              to="/special-records"
+              class="text-sm text-white/60 hover:text-grass-green transition-colors"
+            >
+              特殊榜单
+            </RouterLink>
+            <RouterLink
               to="/forum"
               class="text-sm text-white/60 hover:text-grass-green transition-colors"
             >

@@ -1,21 +1,22 @@
 // Mock数据 - 用于演示和开发测试
 
 import type { Activity, Group, Member, Post, Comment } from '@/types/database'
+import { getCustomPosts, getCustomPostCommentsByPost, incrementPostViews } from '@/utils/storage'
 
 // 成员数据
 export const mockMembers: Member[] = [
-  { id: 'm1', nickname: '史蒂夫', qq_number: '123456789', avatar_url: null, notes: '服务器老玩家', created_at: '2024-01-15T00:00:00Z' },
-  { id: 'm2', nickname: '苦力怕', qq_number: '234567890', avatar_url: null, notes: '建筑大师', created_at: '2024-02-20T00:00:00Z' },
-  { id: 'm3', nickname: '末影人', qq_number: '345678901', avatar_url: null, notes: '红石专家', created_at: '2024-03-10T00:00:00Z' },
-  { id: 'm4', nickname: '钻石剑', qq_number: '456789012', avatar_url: null, notes: 'PVP高手', created_at: '2024-04-05T00:00:00Z' },
-  { id: 'm5', nickname: '金苹果', qq_number: '567890123', avatar_url: null, notes: '生存达人', created_at: '2024-05-12T00:00:00Z' },
-  { id: 'm6', nickname: '附魔台', qq_number: '678901234', avatar_url: null, notes: '收集狂', created_at: '2024-06-18T00:00:00Z' },
-  { id: 'm7', nickname: '铁傀儡', qq_number: '789012345', avatar_url: null, notes: '管理员', created_at: '2024-07-22T00:00:00Z' },
-  { id: 'm8', nickname: '雪傀儡', qq_number: '890123456', avatar_url: null, notes: '萌新一枚', created_at: '2024-08-30T00:00:00Z' },
-  { id: 'm9', nickname: '岩浆怪', qq_number: '901234567', avatar_url: null, notes: '下界探险者', created_at: '2024-09-15T00:00:00Z' },
-  { id: 'm10', nickname: '史莱姆', qq_number: '012345678', avatar_url: null, notes: '可爱担当', created_at: '2024-10-01T00:00:00Z' },
-  { id: 'm11', nickname: '凋零骷髅', qq_number: '112345678', avatar_url: null, notes: '刷怪塔建造者', created_at: '2024-11-11T00:00:00Z' },
-  { id: 'm12', nickname: '恶魂', qq_number: '223456789', avatar_url: null, notes: '建筑爱好者', created_at: '2024-12-25T00:00:00Z' }
+  { id: 'm1', nickname: '史蒂夫', qq_number: '123456789', avatar_url: null, notes: '服务器老玩家', tags: ['建筑', 'PVP', '大佬'], created_at: '2024-01-15T00:00:00Z' },
+  { id: 'm2', nickname: '苦力怕', qq_number: '234567890', avatar_url: null, notes: '建筑大师', tags: ['建筑', '生存', '大佬'], created_at: '2024-02-20T00:00:00Z' },
+  { id: 'm3', nickname: '末影人', qq_number: '345678901', avatar_url: null, notes: '红石专家', tags: ['红石', '建筑', '大佬'], created_at: '2024-03-10T00:00:00Z' },
+  { id: 'm4', nickname: '钻石剑', qq_number: '456789012', avatar_url: null, notes: 'PVP高手', tags: ['PVP', '竞技', '大佬'], created_at: '2024-04-05T00:00:00Z' },
+  { id: 'm5', nickname: '金苹果', qq_number: '567890123', avatar_url: null, notes: '生存达人', tags: ['生存', '探索'], created_at: '2024-05-12T00:00:00Z' },
+  { id: 'm6', nickname: '附魔台', qq_number: '678901234', avatar_url: null, notes: '收集狂', tags: ['收藏', '生存'], created_at: '2024-06-18T00:00:00Z' },
+  { id: 'm7', nickname: '铁傀儡', qq_number: '789012345', avatar_url: null, notes: '管理员', tags: ['管理员', 'PVP', '建筑'], created_at: '2024-07-22T00:00:00Z' },
+  { id: 'm8', nickname: '雪傀儡', qq_number: '890123456', avatar_url: null, notes: '萌新一枚', tags: ['萌新'], created_at: '2024-08-30T00:00:00Z' },
+  { id: 'm9', nickname: '岩浆怪', qq_number: '901234567', avatar_url: null, notes: '下界探险者', tags: ['下界', '探索', '生存'], created_at: '2024-09-15T00:00:00Z' },
+  { id: 'm10', nickname: '史莱姆', qq_number: '012345678', avatar_url: null, notes: '可爱担当', tags: ['收藏', '建筑'], created_at: '2024-10-01T00:00:00Z' },
+  { id: 'm11', nickname: '凋零骷髅', qq_number: '112345678', avatar_url: null, notes: '刷怪塔建造者', tags: ['建筑', '红石', '大佬'], created_at: '2024-11-11T00:00:00Z' },
+  { id: 'm12', nickname: '恶魂', qq_number: '223456789', avatar_url: null, notes: '建筑爱好者', tags: ['建筑', '生存'], created_at: '2024-12-25T00:00:00Z' }
 ]
 
 // 小组数据
@@ -130,6 +131,7 @@ export const mockPosts: Post[] = [
   {
     id: 'p1',
     title: '第一届起床战争赛后回顾 - 蓝队冠军之路',
+    summary: '恭喜蓝队获得第一届起床战争大赛的冠军！作为蓝队队长，分享我们获胜的战术安排和关键瞬间。',
     content: '恭喜蓝队获得第一届起床战争大赛的冠军！\n\n作为蓝队的队长，我想和大家分享一下我们获胜的一些心得。\n\n## 战术安排\n\n我们采用了"稳扎稳打"的战术，前期重点发展经济，中期开始压制对手。\n\n## 关键瞬间\n\n1. 红队第一次进攻被我们成功防守\n2. 绿队的偷袭让我们损失了一些资源\n3. 最后一波进攻中，史蒂夫的关键击杀决定了胜负\n\n感谢所有队友的付出，也感谢红队和绿队带来的精彩对决！',
     author_id: null,
     views: 256,
@@ -141,6 +143,7 @@ export const mockPosts: Post[] = [
   {
     id: 'p2',
     title: '建筑大赛作品分享 - 我的中式庭院',
+    summary: '这次建筑大赛我做了一个中式庭院，参考苏州园林设计风格，讲究移步换景，曲径通幽。',
     content: '大家好！这次建筑大赛我做了一个中式庭院，虽然没有拿到名次，但还是想分享给大家。\n\n### 设计理念\n\n参考了苏州园林的设计风格，讲究移步换景，曲径通幽。\n\n### 用到的方块\n\n- 石砖和石台阶做主体\n- 木头做柱子和窗框\n- 瓦片做屋顶\n- 灯笼做装饰\n\n欢迎大家提意见！',
     author_id: null,
     views: 189,
@@ -152,6 +155,7 @@ export const mockPosts: Post[] = [
   {
     id: 'p3',
     title: '极限生存挑战的一些小技巧分享',
+    summary: '刚结束了五天生存挑战，给大家分享一些实用的生存技巧，包括第一天最重要的事、挖矿技巧和下界探索心得。',
     content: '刚结束了五天生存挑战，给大家分享一些实用的生存技巧。\n\n## 第一天最重要的事\n\n1. 先撸树，做工具\n2. 找一个合适的地方建庇护所\n3. 尽早下矿挖铁矿\n\n## 挖矿技巧\n\n- 鱼骨挖矿法效率最高\n- 带够火把\n- 注意听怪的声音\n\n## 下界探索\n\n- 一定要带方块铺路\n- 金锭可以和猪灵交易\n- 小心岩浆怪\n\n希望对大家有帮助！',
     author_id: null,
     views: 342,
@@ -163,6 +167,7 @@ export const mockPosts: Post[] = [
   {
     id: 'p4',
     title: '服务器新玩家生存指南',
+    summary: '欢迎来到我们的MC服务器！作为老玩家，给新人们一些开始游戏的建议和服务器规则介绍。',
     content: '欢迎来到我们的MC服务器！作为一个老玩家，给新人们一些建议。\n\n## 开始游戏\n\n- 先选好你的出生地附近建家\n- 记得设置家的坐标\n- 有问题可以在群里问\n\n## 服务器规则\n\n1. 不要破坏别人的建筑\n2. PVP需要双方同意\n3. 禁止使用作弊客户端\n\n祝大家游戏愉快！',
     author_id: null,
     views: 567,
@@ -174,6 +179,7 @@ export const mockPosts: Post[] = [
   {
     id: 'p5',
     title: '我的红石自动农场教程',
+    summary: '分享一个全自动小麦农场的设计，效率很高！介绍所需材料和红石电路原理。',
     content: '今天给大家分享一个全自动小麦农场的设计，效率很高！\n\n## 所需材料\n\n- 活塞若干\n- 红石粉\n- 红石比较器\n- 漏斗和箱子\n- 水和小麦种子\n\n## 原理\n\n利用红石电路控制活塞定时收割，漏斗自动收集。\n\n具体的建造过程我会在下次直播中演示，敬请关注！',
     author_id: null,
     views: 278,
@@ -273,21 +279,6 @@ export function getMockActivityComments(activityId: string) {
     }))
 }
 
-// 获取帖子详情（包含评论）
-export function getMockPostDetail(id: string) {
-  const post = mockPosts.find(p => p.id === id)
-  if (!post) return null
-
-  const author = mockPostAuthors[id] || { nickname: '匿名', avatar_url: null }
-  const comments = getMockPostComments(id)
-
-  return {
-    ...post,
-    profiles: author,
-    comments
-  }
-}
-
 // 获取帖子的评论
 export function getMockPostComments(postId: string) {
   return mockComments
@@ -317,4 +308,65 @@ export function getMockMemberActivities(memberId: string) {
       group_name: group?.name || ''
     }
   })
+}
+
+// 获取所有帖子（mock + 用户自定义）
+export function getAllPosts(): Post[] {
+  const customPosts = getCustomPosts() as Post[]
+  return [...customPosts, ...mockPosts]
+}
+
+// 获取帖子作者信息（支持自定义帖子）
+export function getPostAuthor(postId: string): { nickname: string; avatar_url: string | null } {
+  const customPost = getCustomPosts().find((p: any) => p.id === postId) as any
+  if (customPost && customPost.author_nickname) {
+    return {
+      nickname: customPost.author_nickname,
+      avatar_url: customPost.author_avatar_url || null
+    }
+  }
+  return mockPostAuthors[postId] || { nickname: '匿名', avatar_url: null }
+}
+
+// 获取帖子评论数
+export function getPostCommentCount(postId: string): number {
+  const mockCount = mockComments.filter(c => c.target_type === 'post' && c.target_id === postId).length
+  const customComments = getCustomPostCommentsByPost(postId) as any[]
+  return mockCount + customComments.length
+}
+
+// 获取帖子详情（支持自定义帖子）
+export function getMockPostDetail(id: string) {
+  const customPost = getCustomPosts().find((p: any) => p.id === id) as any
+  if (customPost) {
+    const author = {
+      nickname: customPost.author_nickname || '匿名',
+      avatar_url: customPost.author_avatar_url || null
+    }
+    const comments = getCustomPostCommentsByPost(id).map((c: any) => ({
+      ...c,
+      profiles: {
+        nickname: c.author_nickname || '匿名',
+        avatar_url: c.author_avatar_url || null
+      }
+    }))
+    incrementPostViews(id)
+    return {
+      ...customPost,
+      profiles: author,
+      comments
+    }
+  }
+
+  const post = mockPosts.find(p => p.id === id)
+  if (!post) return null
+
+  const author = mockPostAuthors[id] || { nickname: '匿名', avatar_url: null }
+  const comments = getMockPostComments(id)
+
+  return {
+    ...post,
+    profiles: author,
+    comments
+  }
 }
