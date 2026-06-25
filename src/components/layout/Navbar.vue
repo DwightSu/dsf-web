@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRouter, useRoute } from 'vue-router'
-import { Menu, X, LogOut, Settings, Home, Calendar, Users, MessageSquare, Trophy, BookOpen } from 'lucide-vue-next'
+import { Menu, X, LogOut, Settings, Home, Calendar, Users, MessageSquare, Sparkles, Trophy, BookOpen } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
@@ -70,7 +70,11 @@ onUnmounted(() => {
         <!-- Logo -->
         <RouterLink to="/" class="flex items-center gap-3 group" @click="closeMenu">
           <div class="relative w-10 h-10 flex items-center justify-center">
-            <img src="/assets/images/poison-potato.svg" alt="毒薯服logo" class="w-10 h-10 pixelated" style="image-rendering: pixelated; image-rendering: crisp-edges;" />
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl transform group-hover:rotate-12 transition-transform duration-300 shadow-lg"></div>
+            <div class="absolute inset-1 bg-gradient-to-br from-amber-300 to-amber-500 rounded-xl flex items-center justify-center">
+              <span class="text-white text-lg font-bold">🥔</span>
+            </div>
+            <Sparkles class="absolute -top-1 -right-1 w-4 h-4 text-yellow-300 animate-pulse" />
           </div>
           <div class="flex flex-col">
             <span class="text-lg font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-green-400 bg-clip-text text-transparent">

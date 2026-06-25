@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { Github, Calendar, Users, Trophy, MessageSquare, BookOpen } from 'lucide-vue-next'
+import { Github, Sparkles, Calendar, Users, Trophy, MessageSquare, BookOpen } from 'lucide-vue-next'
 
 const currentYear = new Date().getFullYear()
 
@@ -19,8 +19,12 @@ const quickLinks = [
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
         <div class="lg:col-span-2 flex flex-col gap-5">
           <div class="flex items-center gap-4">
-            <div class="relative w-14 h-14 flex items-center justify-center">
-              <img src="/assets/images/poison-potato.svg" alt="毒薯服logo" class="w-14 h-14" style="image-rendering: pixelated; image-rendering: crisp-edges;" />
+            <div class="relative w-14 h-14">
+              <div class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl transform rotate-6 shadow-lg shadow-amber-500/30"></div>
+              <div class="absolute inset-1 bg-gradient-to-br from-amber-300 to-amber-500 rounded-xl flex items-center justify-center">
+                <span class="text-white text-2xl">🥔</span>
+              </div>
+              <Sparkles class="absolute -top-1 -right-1 w-5 h-5 text-yellow-300 animate-pulse" />
             </div>
             <div class="flex flex-col">
               <span class="text-xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-green-400 bg-clip-text text-transparent">
