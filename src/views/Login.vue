@@ -47,19 +47,12 @@ async function handleLogin() {
 
 <template>
   <div class="login-page">
-    <div class="floating-decorations">
-      <div class="deco deco-1">🥔</div>
-      <div class="deco deco-2">✨</div>
-      <div class="deco deco-3">🌟</div>
-      <div class="deco deco-4">💚</div>
-      <div class="deco deco-5">🥔</div>
-      <div class="deco deco-6">🍃</div>
-    </div>
-
     <div class="login-container" :class="{ 'is-loaded': isLoaded }">
       <div class="brand-section">
-        <div class="brand-logo animate-bounce-soft">
-          <span class="potato-emoji">🥔</span>
+        <div class="brand-logo">
+          <div class="logo-inner">
+            <span class="potato-emoji">🥔</span>
+          </div>
         </div>
         <h1 class="brand-title">
           <span class="text-gradient-green">毒薯服</span>
@@ -155,82 +148,11 @@ async function handleLogin() {
   background: linear-gradient(135deg, #1a2744 0%, #243447 50%, #1a2744 100%);
 }
 
-.floating-decorations {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.deco {
-  position: absolute;
-  font-size: 28px;
-  opacity: 0.15;
-  animation: float 6s ease-in-out infinite;
-}
-
-.deco-1 {
-  top: 10%;
-  left: 8%;
-  animation-delay: 0s;
-  font-size: 40px;
-}
-
-.deco-2 {
-  top: 20%;
-  right: 12%;
-  animation-delay: 1s;
-  font-size: 24px;
-}
-
-.deco-3 {
-  top: 60%;
-  left: 5%;
-  animation-delay: 2s;
-  font-size: 32px;
-}
-
-.deco-4 {
-  top: 75%;
-  right: 8%;
-  animation-delay: 1.5s;
-  font-size: 28px;
-}
-
-.deco-5 {
-  top: 40%;
-  right: 5%;
-  animation-delay: 3s;
-  font-size: 36px;
-}
-
-.deco-6 {
-  bottom: 15%;
-  left: 15%;
-  animation-delay: 2.5s;
-  font-size: 30px;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(5deg);
-  }
-}
-
 .login-container {
   position: relative;
   z-index: 1;
   width: 100%;
   max-width: 420px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .login-container.is-loaded {
@@ -249,16 +171,24 @@ async function handleLogin() {
   justify-content: center;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, rgba(92, 184, 92, 0.2), rgba(126, 211, 33, 0.2));
-  border: 2px solid rgba(92, 184, 92, 0.3);
-  border-radius: 24px;
   margin-bottom: 16px;
-  box-shadow: 0 8px 32px rgba(92, 184, 92, 0.2);
+  position: relative;
 }
 
-.potato-emoji {
+.logo-inner {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+  border-radius: 24px;
+  transform: rotate(6deg);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+}
+
+.brand-logo .potato-emoji {
   font-size: 44px;
   display: block;
+  position: relative;
+  z-index: 1;
 }
 
 .brand-title {
@@ -276,18 +206,6 @@ async function handleLogin() {
 
 .login-card {
   padding: 36px 32px;
-  animation: scale-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
-}
-
-@keyframes scale-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .login-form {

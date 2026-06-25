@@ -26,12 +26,12 @@ const featuresVisible = ref(false)
 const ctaVisible = ref(false)
 
 onMounted(() => {
-  setTimeout(() => (heroVisible.value = true), 100)
-  setTimeout(() => (statsVisible.value = true), 400)
-  setTimeout(() => (quickLinksVisible.value = true), 700)
-  setTimeout(() => (activitiesVisible.value = true), 1000)
-  setTimeout(() => (featuresVisible.value = true), 1300)
-  setTimeout(() => (ctaVisible.value = true), 1600)
+  heroVisible.value = true
+  statsVisible.value = true
+  quickLinksVisible.value = true
+  activitiesVisible.value = true
+  featuresVisible.value = true
+  ctaVisible.value = true
 })
 
 const latestActivities = computed(() => {
@@ -111,16 +111,7 @@ interface FloatingEmoji {
   size: string
 }
 
-const floatingEmojis: FloatingEmoji[] = [
-  { emoji: '🥔', top: '10%', left: '5%', delay: '0s', duration: '6s', size: 'text-4xl' },
-  { emoji: '✨', top: '20%', right: '8%', delay: '1s', duration: '5s', size: 'text-3xl' },
-  { emoji: '🌟', top: '60%', left: '3%', delay: '2s', duration: '7s', size: 'text-3xl' },
-  { emoji: '💚', top: '40%', right: '5%', delay: '0.5s', duration: '5.5s', size: 'text-2xl' },
-  { emoji: '🥔', top: '75%', right: '15%', delay: '1.5s', duration: '6.5s', size: 'text-3xl' },
-  { emoji: '✨', top: '85%', left: '10%', delay: '2.5s', duration: '4.5s', size: 'text-2xl' },
-  { emoji: '🌟', top: '15%', left: '15%', delay: '3s', duration: '7.5s', size: 'text-2xl' },
-  { emoji: '💛', top: '70%', left: '20%', delay: '0.8s', duration: '5.8s', size: 'text-3xl' }
-]
+const floatingEmojis: FloatingEmoji[] = []
 </script>
 
 <template>
@@ -135,24 +126,6 @@ const floatingEmojis: FloatingEmoji[] = [
         <div class="absolute bottom-0 right-1/4 w-72 h-72 bg-lime-300/30 rounded-full blur-3xl"></div>
       </div>
 
-      <!-- 漂浮emoji装饰 -->
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          v-for="(item, index) in floatingEmojis"
-          :key="index"
-          :class="[item.size, 'absolute opacity-60 animate-float']"
-          :style="{
-            top: item.top,
-            left: item.left,
-            right: item.right,
-            animationDelay: item.delay,
-            animationDuration: item.duration
-          }"
-        >
-          {{ item.emoji }}
-        </div>
-      </div>
-
       <!-- Hero内容 -->
       <div class="container mx-auto px-4 relative z-10">
         <div
@@ -162,7 +135,7 @@ const floatingEmojis: FloatingEmoji[] = [
           ]"
         >
           <!-- 徽章 -->
-          <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-white/70 backdrop-blur-md rounded-full border border-green-200 shadow-lg shadow-green-100/50 mb-8">
+          <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-white/80 rounded-full border border-green-200 shadow-lg mb-8">
             <Sparkles class="w-5 h-5 text-amber-500" />
             <span class="text-sm font-semibold text-green-700">Minecraft 服务器活动纪念</span>
           </div>
@@ -186,7 +159,7 @@ const floatingEmojis: FloatingEmoji[] = [
           <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <RouterLink
               to="/activities"
-              class="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/40 hover:-translate-y-1 transition-all duration-300"
+              class="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/40 transition-shadow duration-200"
             >
               <Calendar class="w-5 h-5" />
               <span>查看活动</span>
@@ -194,7 +167,7 @@ const floatingEmojis: FloatingEmoji[] = [
             </RouterLink>
             <RouterLink
               to="/forum"
-              class="group inline-flex items-center gap-3 px-8 py-4 bg-white/80 backdrop-blur-md text-green-700 font-bold rounded-2xl border-2 border-green-200 shadow-lg hover:border-green-400 hover:bg-white hover:-translate-y-1 transition-all duration-300"
+              class="group inline-flex items-center gap-3 px-8 py-4 bg-white/80 text-green-700 font-bold rounded-2xl border-2 border-green-200 shadow-lg hover:border-green-400 hover:bg-white transition-all duration-200"
             >
               <MessageSquare class="w-5 h-5" />
               <span>进入论坛</span>
@@ -212,7 +185,7 @@ const floatingEmojis: FloatingEmoji[] = [
           <div
             v-for="stat in stats"
             :key="stat.label"
-            class="group bg-white/70 backdrop-blur-md rounded-2xl p-5 md:p-6 text-center border border-white/60 shadow-xl shadow-green-100/50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+            class="group bg-white/80 rounded-2xl p-5 md:p-6 text-center border border-white/60 shadow-xl hover:shadow-2xl transition-shadow duration-200"
           >
             <div :class="['w-14 h-14 md:w-16 md:h-16 mx-auto mb-3 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg', stat.color]">
               <component :is="stat.icon" class="w-7 h-7 md:w-8 md:h-8 text-white" />
@@ -251,7 +224,7 @@ const floatingEmojis: FloatingEmoji[] = [
             v-for="link in quickLinks"
             :key="link.path"
             :to="link.path"
-            class="group relative overflow-hidden rounded-3xl p-8 bg-white/80 backdrop-blur-md border border-white/60 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+            class="group relative overflow-hidden rounded-3xl p-8 bg-white/80 border border-white/60 shadow-xl hover:shadow-2xl transition-shadow duration-200"
           >
             <div :class="['absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-20 bg-gradient-to-br transition-transform duration-500 group-hover:scale-150', link.gradient]"></div>
             <div class="relative z-10">
