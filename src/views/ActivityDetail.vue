@@ -1144,45 +1144,56 @@ onMounted(() => {
             </div>
 
             <!-- 评论输入框 -->
-            <div v-if="authStore.user" class="bg-gradient-to-br from-white/[0.08] to-white/[0.03] rounded-2xl p-6 border border-white/10 mb-6">
+            <div v-if="authStore.user" class="glass-card rounded-2xl p-6 border border-white/10 mb-6">
               <div class="flex items-start gap-4">
                 <img
                   :src="getCommentAuthorAvatar(authStore.user.id)"
                   :alt="authStore.user.nickname"
-                  class="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                  class="w-12 h-12 rounded-full object-cover flex-shrink-0 ring-2 ring-white/10"
                 />
                 <div class="flex-1">
                   <textarea
                     v-model="newComment"
                     rows="3"
                     placeholder="发表评论...（登录后可评论）"
-                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 resize-none"
+                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-200 resize-none backdrop-blur-sm"
                   ></textarea>
                   <div class="flex justify-end mt-3">
-                    <PixelButton
-                      variant="primary"
-                      size="md"
+                    <button
                       :disabled="!newComment.trim() || isSubmittingComment"
-                      :loading="isSubmittingComment"
                       @click="submitComment"
+                      class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 rounded-xl transition-all duration-300 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-green-500/25"
                     >
-                      <Send :size="16" />
-                      发布评论
-                    </PixelButton>
+                      <span v-if="isSubmittingComment" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      <template v-else>
+                        <Send :size="16" />
+                        发布评论
+                      </template>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- 登录提示 -->
-            <div v-else class="bg-gradient-to-br from-white/[0.08] to-white/[0.03] rounded-2xl p-8 border border-white/10 mb-6 text-center">
-              <MessageCircle :size="40" class="mx-auto mb-3 text-white/30" />
-              <p class="text-white/70 mb-4">登录后可发表评论</p>
-              <RouterLink to="/login">
-                <PixelButton variant="primary" size="md">
-                  立即登录
-                </PixelButton>
-              </RouterLink>
+            <div v-else class="glass-card rounded-2xl p-8 border border-white/10 mb-6 text-center">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center backdrop-blur-sm">
+                <MessageCircle :size="28" class="text-purple-300" />
+              </div>
+              <h3 class="text-lg font-semibold text-white mb-2">登录后可发表评论</h3>
+              <p class="text-white/50 text-sm mb-5">加入我们的社区，分享你的想法和回忆</p>
+              <div class="flex items-center justify-center gap-3">
+                <RouterLink to="/login">
+                  <button class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 rounded-xl transition-all duration-300 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 hover:-translate-y-0.5 active:translate-y-0">
+                    立即登录
+                  </button>
+                </RouterLink>
+                <RouterLink to="/register">
+                  <button class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0">
+                    注册账号
+                  </button>
+                </RouterLink>
+              </div>
             </div>
 
             <!-- 评论列表 -->
