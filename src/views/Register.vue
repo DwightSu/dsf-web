@@ -236,13 +236,9 @@ async function handleRegister() {
   border-radius: 24px;
   transform: rotate(6deg);
   box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
-}
-
-.brand-logo .potato-emoji {
-  font-size: 44px;
-  display: block;
-  position: relative;
-  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .brand-title {
