@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { Github, Heart } from 'lucide-vue-next'
+import { Github, Heart, Sparkles } from 'lucide-vue-next'
+import PotatoIcon from '@/components/icons/PotatoIcon.vue'
 
 const currentYear = new Date().getFullYear()
 </script>
@@ -13,15 +14,19 @@ const currentYear = new Date().getFullYear()
         <!-- Logo和描述 -->
         <div class="flex flex-col gap-4">
           <div class="flex items-center gap-3">
-            <div class="pixel-logo">
-              <div class="pixel-block pixel-block-1"></div>
-              <div class="pixel-block pixel-block-2"></div>
-              <div class="pixel-block pixel-block-3"></div>
-              <div class="pixel-block pixel-block-4"></div>
+            <div class="relative w-12 h-12">
+              <div class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl transform rotate-6 shadow-lg shadow-amber-500/30"></div>
+              <div class="absolute inset-1 bg-gradient-to-br from-amber-300 to-amber-500 rounded-xl flex items-center justify-center">
+                <PotatoIcon size="md" />
+              </div>
+              <Sparkles class="absolute -top-1 -right-1 w-4 h-4 text-yellow-300 animate-pulse" />
             </div>
-            <span class="text-lg font-pixel text-grass-green">
-              MC活动纪念
-            </span>
+            <div class="flex flex-col">
+              <span class="text-lg font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-green-400 bg-clip-text text-transparent">
+                毒薯服
+              </span>
+              <span class="text-xs text-white/60 -mt-0.5">MC活动纪念</span>
+            </div>
           </div>
           <p class="text-sm text-white/60 leading-relaxed">
             记录Minecraft服务器活动的精彩瞬间，保存每一位玩家的珍贵回忆。

@@ -15,6 +15,7 @@ import {
 import { mockActivities, mockPosts, mockImages } from '@/mock'
 import { formatDate } from '@/utils/format'
 import { useMemberStore } from '@/stores/members'
+import PotatoIcon from '@/components/icons/PotatoIcon.vue'
 
 const memberStore = useMemberStore()
 
@@ -405,8 +406,12 @@ const floatingEmojis: FloatingEmoji[] = [
             ctaVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           ]"
         >
-          <!-- 装饰emoji -->
-          <div class="text-5xl md:text-6xl mb-6">🥔✨🌟</div>
+          <!-- 装饰图标 -->
+          <div class="flex items-center justify-center gap-3 md:gap-4 mb-6">
+            <PotatoIcon size="lg" />
+            <Sparkles class="w-8 h-8 md:w-10 md:h-10 text-yellow-300 animate-pulse" />
+            <PartyPopper class="w-8 h-8 md:w-10 md:h-10 text-yellow-200" />
+          </div>
 
           <h2 class="text-3xl md:text-5xl font-extrabold mb-6">
             加入毒薯服大家庭
