@@ -6,7 +6,7 @@ import traeBadgePlugin from 'vite-plugin-trae-solo-badge'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/dsf-web/',
+  base: '/dsf-web1.0/',
   build: {
     sourcemap: 'hidden',
   },
