@@ -50,9 +50,7 @@ async function handleLogin() {
     <div class="login-container" :class="{ 'is-loaded': isLoaded }">
       <div class="brand-section">
         <div class="brand-logo">
-          <div class="logo-inner">
-            <span class="potato-emoji">🥔</span>
-          </div>
+          <img src="/assets/images/poison-potato.svg" alt="毒薯服logo" class="logo-img" />
         </div>
         <h1 class="brand-title">
           <span class="text-gradient-green">毒薯服</span>
@@ -175,20 +173,12 @@ async function handleLogin() {
   position: relative;
 }
 
-.logo-inner {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
-  border-radius: 24px;
-  transform: rotate(6deg);
-  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
-}
-
-.brand-logo .potato-emoji {
-  font-size: 44px;
-  display: block;
-  position: relative;
-  z-index: 1;
+.logo-img {
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
 }
 
 .brand-title {
