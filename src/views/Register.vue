@@ -9,6 +9,7 @@ import {
   validateQQNumber,
   validateConfirmPassword
 } from '@/utils/validation'
+import PotatoIcon from '@/components/icons/PotatoIcon.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -70,7 +71,7 @@ async function handleRegister() {
       <div class="brand-section">
         <div class="brand-logo">
           <div class="logo-inner">
-            <span class="potato-emoji">🥔</span>
+            <PotatoIcon size="xl" />
           </div>
         </div>
         <h1 class="brand-title">

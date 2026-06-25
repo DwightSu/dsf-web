@@ -4,6 +4,7 @@ import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { Hash, Lock, LogIn } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { validateQQNumber, validatePassword } from '@/utils/validation'
+import PotatoIcon from '@/components/icons/PotatoIcon.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -51,7 +52,7 @@ async function handleLogin() {
       <div class="brand-section">
         <div class="brand-logo">
           <div class="logo-inner">
-            <span class="potato-emoji">🥔</span>
+            <PotatoIcon size="xl" />
           </div>
         </div>
         <h1 class="brand-title">
@@ -182,13 +183,9 @@ async function handleLogin() {
   border-radius: 24px;
   transform: rotate(6deg);
   box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
-}
-
-.brand-logo .potato-emoji {
-  font-size: 44px;
-  display: block;
-  position: relative;
-  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .brand-title {

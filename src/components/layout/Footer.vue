@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { Github, Sparkles, Calendar, Users, Trophy, MessageSquare, BookOpen } from 'lucide-vue-next'
+import PotatoIcon from '@/components/icons/PotatoIcon.vue'
 
 const currentYear = new Date().getFullYear()
 
@@ -22,7 +23,7 @@ const quickLinks = [
             <div class="relative w-14 h-14">
               <div class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl transform rotate-6 shadow-lg shadow-amber-500/30"></div>
               <div class="absolute inset-1 bg-gradient-to-br from-amber-300 to-amber-500 rounded-xl flex items-center justify-center">
-                <span class="text-white text-2xl">🥔</span>
+                <PotatoIcon size="lg" />
               </div>
               <Sparkles class="absolute -top-1 -right-1 w-5 h-5 text-yellow-300 animate-pulse" />
             </div>
